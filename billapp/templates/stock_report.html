@@ -1,0 +1,672 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
+
+
+<style>
+    main{
+        background: #ddddbeed;
+    }
+    .btn:focus{
+        box-shadow: none;
+    }
+    .add_newpurchase_btn{
+        border: 1px solid lightgoldenrodyellow;
+        padding: 0.5rem 2rem;
+        border-radius: 7px;
+        background: white;
+        color: white;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+    .add_newpurchase_btn:hover {
+        background:  #68020F;
+    }
+    .action_btns{
+        background:  #68020F;
+        font-weight: 500;
+        color: white;
+        height: 2.5rem;
+        width: 6rem;
+    }
+    .action_btns:hover{
+        background: #68020F;
+        color: white;
+    }
+    {% comment %} .all_stock_reports{
+        background: white;
+    } {% endcomment %}
+
+    table tr {
+        cursor: pointer;
+    }
+    .table-responsive {
+        max-height:100vh;
+    }
+    .table-responsive::-webkit-scrollbar {
+        display: none;
+    }
+
+    .share-dropdown {
+    position: relative;
+    display: inline-block;
+    }
+    .share-dropdown-menu {
+        position: absolute;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        right: 0;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        display: none;
+        z-index: 10;
+    }
+
+    /* .trns_table_menu:hover .trans-dropdown-menu {
+        display: block;
+    } */
+
+    .share-dropdown-menu li {
+        padding: 5px 25px;
+        display: flex;
+        border-bottom: 1px solid khaki;
+        justify-content: left;
+    }
+
+    .share-dropdown-menu li a{
+        color: black;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .share-dropdown-menu li:hover {
+        background-color: #f0f0f0;
+    }
+    .share-dropdown i{
+        z-index: 5;
+    }
+
+    .submitShareEmailBtn {
+        background: white;
+        border: 1px solid #68020F;;
+        border-radius: 4px;
+        color: #68020F;;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+    }
+    .submitShareEmailBtn:hover{
+        background: #68020F;
+        color:white;
+    }
+
+</style>
+<style>
+ 
+    .bs{
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+    }
+
+    .bs_sm{
+        box-shadow: inset 2px 2px 5px 3px rgba(0, 0, 0, 0.199);
+    }
+
+    .paiddiv{
+        color: black;
+        height: 10vh;
+        width: 20vh;
+        padding-left: 2vh;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        margin-left: 7vh;
+        border-radius: 8px;
+        background-color: #FFADB0;
+    }
+
+    .unpaiddiv{
+        color: black;
+        height: 10vh;
+        width: 20vh;
+        padding-left: 2vh;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        margin-left: 7vh;
+        border-radius: 8px;
+        background-color: #FFADB0;
+    }
+
+    .totaldiv{
+        color: black;
+        height: 10vh;
+        width: 20vh;
+        padding-left: 2vh;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        margin-left: 7vh;
+        border-radius: 8px;
+        background-color:#FFADB0;
+    }
+
+    #stock_reports_table tbody{
+        cursor: pointer;
+    }
+
+    #emptyMessage {
+        display: none;
+        font-size: x-large;
+        font-weight: bold;
+        color: red;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        border-radius: 5px;
+        padding: 10px;
+        z-index: 1;
+        width: 15%;
+    }
+
+    .dropdown-content label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-content input {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+
+    .tplus{
+        margin-top: 3vh;
+        margin-left: 5vh;
+        margin-right: -2vh;
+    }
+
+    .tequal{
+        margin-top: 3vh;
+        margin-left: 5vh;
+        margin-right: -2vh;
+    }
+
+    .tg{
+        color: rgb(0, 140, 7);
+    }
+
+    .tr{
+        color: #68020F;
+    }
+
+    .tj{
+        color:#E4A11B;
+    }
+
+    .th{
+        color: black;
+    }
+
+    @media print{
+        body{
+            visibility: hidden !important; /* hide everything in body when in print mode*/
+        }
+
+        .printContainer {
+            visibility: visible !important; /* Override the rule above to only show the printables*/
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: large;
+        } 
+
+        #calcdiv{
+            visibility: visible;
+            margin-top: -30vh;
+            margin-left: -9vh;
+            margin-bottom: 30vh;
+        }
+
+        #stock_reports_table{
+            margin-top: 20vh;
+            margin-bottom: 20vh;
+        }
+
+        #stock_reports_table th{
+            font-size: medium;
+        }
+
+        .extra{
+            display: none;
+        }
+    }
+    
+    ::-webkit-scrollbar{
+        display: none
+    }
+</style>
+
+
+    
+<div class="body-wrapper">
+    <br><br><br>
+    {% for m in messages %}
+                <h5>
+                    <div class="alert alert-danger mt-4" style="width: 100%;">
+                        {{ m }}
+                    </div>
+                </h5>
+                {% endfor %}
+    <p></p>
+    <div class="row ps-3 pe-3 m-0" >
+        <div class="col-sm-12 ps-2 pe-3">
+            <div class="row pt-0 m-0">
+                <div class="card p-0 bg-light bs" style="height: 100rem;">
+                 <br>
+                 <div class="row m-0 p-0 pt-3">
+                    <div class="col-md-12 col-lg-12">
+                        <div class="all_stock_reports">
+                            <div class="all_stock_reports_table px-1 py-2 border rounded-1">
+                                
+                                <div class="row px-2" style="margin-left: 0px;">
+                                    <div class="col-md-6 d-flex justify-content-start">
+                                        <select name="item" id="item_dropdown" class="form-control w-50" onchange="window.location.href='/item_stock_report/'+$(this).val()" style="border-color: #68020F;">
+                                            <option value="" selected>Search Items..</option>
+                                            <option value="0">All Items</option>
+                                            {% for i in items %}
+                                                <option value="{{i.id}}" >{{i.itm_name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 d-flex justify-content-end mr-5">
+                                        <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="printSection('print_stock_reports')"
+                                        style="color:  #68020F;">
+                                        <i class="fas fa-print" style="font-size:175%;"></i><br>PRINT
+                                        </button>
+
+                                        <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="ExportToExcel()"
+                                            style="color:  #68020F;">
+                                            <i class="fas fa-file-excel" style="font-size:175%;"></i><br>EXCEL
+                                        </button>                                   
+
+                                        <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="generatePDF()"
+                                            style="color:  #68020F;">
+                                            <i class="fas fa-file-pdf" style="font-size:175%;"></i><br>PDF
+                                        </button>
+
+                                        <a class="text-dark" data-toggle="dropdown">
+                                            <button class="btn p-0 ps-2 pe-2 ms-2" type="button" style="color:  #68020F;" title="Share"><i class="fa fa-share" aria-hidden="true" style="font-size:175%;"></i> <br> SHARE</button>
+                                        </a>
+                                        <div class="dropdown-menu ">
+                                            <a class="dropdown-item" data-target="#shareReportEmail"
+                                                data-toggle="modal">GMAIL</a>
+                                           
+                                            <ul class="dropdown-item" aria-labelledby="navbarDropdown">
+                                                <li>{% post_to_whatsapp object_or_url "<span style='color: black;'>WhatsApp</span>" %}</li>
+                                            </ul> 
+                                        </div> 
+                                        
+                                    </div>
+                                </div>
+                                
+                                <h2><ul style=" text-align:center;text-transform: uppercase;">{{cmp.company_name}}</ul></h2>
+                                <h3><ul style=" text-align:center;">Stock Report</ul></h3>
+                                <div class="stock_reports_table_section table-responsive"style="margin-left: 20px;margin-right:20px;">
+                                    
+                                    <table class="table table-bordered table-dangerbtn-danger table-striped tb table-responsive w-100" id="stock_reports_table">
+                                        <thead>
+                                        <tr style="background:#68020F;color:white;border:white;text-align:center;">
+                                            <th>
+                                                #
+                                                
+                                            </th>
+
+                                            <th>
+                                                ITEMS
+                                                <a class="extra text-black" onclick="toggleDropdown(1)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent1">
+                                                    <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput1"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(1)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(1)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                STOCK IN
+                                                <a class="extra text-black" onclick="toggleDropdown(2)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent2">
+                                                    <label for="filterInput2" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput2"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(2)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(2)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                STOCK OUT
+                                                <a class="extra text-black" onclick="toggleDropdown(3)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent3">
+                                                    <label for="filterInput3" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput3"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(3)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(3)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                BALANCE
+                                                <a class="extra text-black" onclick="toggleDropdown(4)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent4">
+                                                    <label for="filterInput4" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput4"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(4)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(4)">Apply</a>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody style="text-align:center;">
+                                            {% for i in stock %}
+                                            <tr>
+                                                <td>{{forloop.counter}}</td>
+                                                <td>{{i.name}}</td>
+                                                <td>{{i.stockIn}}</td>
+                                                <td>{{i.stockOut}}</td>
+                                                <td>{{i.balance}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if balance %}
+                                <div class="balance_stock_section" style="margin-left: 20px;">
+                                    <h5>Stock Remaining: <span class="fs-2 text-success">{{balance}}</span></h5>
+                                </div>
+                                {% elif balance == 0 %}
+                                <div class="balance_stock_section" style="margin-left: 20px;">
+                                    <h5>Stock Remaining: <span class="fs-2 text-danger">0</span></h5>
+                                </div>
+                                {% endif %}
+                                {% if count %}
+                                <div class="stock_count_section" style="margin-left: 20px;">
+                                    <h5>Stock Count: <span class="fs-2" style="color:#68020F;">{{count}}</span></h5>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="stock_rp_table_print" id="print_stock_reports" style="display: none;">
+        <div>
+            <h4>STOCK REPORTS</h4>
+        </div>
+        <table class="table table-bordered mt-2" id="stk_rprt_table_print">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ITEM</th>
+                    <th>STOCK IN</th>
+                    <th>STOCK OUT</th>
+                    <th>BALANCE</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for i in stock %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{i.name}}</td>
+                        <td>{{i.stockIn}}</td>
+                        <td>{{i.stockOut}}</td>
+                        <td>{{i.balance}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        </table>
+        <h5>Available Stock: <span class="fs-2 text-success">{{count}}</span></h5>
+    </div>
+
+    <!-- Share bill Modal -->
+<div class="modal fade" id="shareReportEmail" tabindex="-1" aria-labelledby="shareReportEmailLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="background:#68020F;color:white;width:100%">
+        <div class="modal-header" style="border-bottom: 1px solid #ffffff;">
+          <h5 class="modal-title text-light" id="shareReportEmailLabel">Share Report Via Email</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-light">
+          <form action="{% url 'sharestockitemToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="emailIds">Email IDs</label>
+                <textarea class="form-control" name="email_ids" id="emailIds" rows="3" placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+            </div>
+            <div class="form-group mt-2">
+                <label for="item_unitname">Message(optional)</label>
+                <textarea name="email_message" id="email_message" class="form-control" cols="" rows="4" placeholder="This message will be sent along with the Stock Report."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid#68020F;">
+          <button type="submit" id="share_with_email" class="submitShareEmailBtn w-50 text-uppercase">SEND MAIL</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+<script>
+    $(document).ready(()=>{
+        var nav_links = $(".nav-item.nav-link");
+        
+        for(var i = 0; i < nav_links.length; i++){
+            $(nav_links[i]).removeClass('active')
+            if($(nav_links[i]).hasClass('nav-stockreports')){
+                $(nav_links[i]).addClass('active');
+                break;
+            }
+        }
+    });
+
+    $(document).ready(()=>{
+        var id = `{{id}}`;
+        if(id != "" && id != "0"){
+            document.querySelector('#item_dropdown').value = id;
+        }
+    });
+
+    // window.onload = function(){
+    //     alert(`{{id}}`)
+    //     if(`{{id}}` != null){
+    //         document.querySelector('#item_dropdown').value = `{{id}}`;
+    //     }
+    // }
+
+    $(document).ready(function(){
+        $('#share_with_email').on('click',function(){
+            var emailsInput = document.getElementById('emailIds');
+            var emailsString = emailsInput.value.trim();
+
+            var emails = emailsString.split(',').map(function(email) {
+                return email.trim();
+            });
+
+            var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+            var invalidEmails = []
+            if(emailsString == ""){
+                alert('Enter valid email addresses..')
+            }
+            else{
+                for (var i = 0; i < emails.length; i++) {
+                    var currentEmail = emails[i];
+
+                    if (currentEmail!="" && !emailRegex.test(currentEmail)) {
+                        console.log(currentEmail + ' is invalid!');
+                        invalidEmails.push(currentEmail)
+                    }
+                }
+                
+                if(invalidEmails.length > 0){
+                    alert('Invalid emails..Please check!\n'+invalidEmails)
+                    // alert(invalidEmails)
+                }else{
+                    $('#share_to_email_form').submit();
+                }
+            }
+        })
+    });
+    
+    
+
+
+    function printSection(sectionId) {
+        var printContents = document.getElementById(sectionId).innerHTML;
+        var originalContents = document.body.innerHTML;
+    
+        document.body.innerHTML = printContents;
+    
+        window.print();
+    
+        document.body.innerHTML = originalContents;
+    }
+
+    $(document).ready(function () {
+        $('#item_dropdown').selectize({
+            sortField: 'text'
+        });
+    });
+
+    $(document).ready(function(){
+        $(".share-dropdown").click(function(){
+            $(this).find(".share-dropdown-menu").slideToggle("fast");
+        });
+    });
+    $(document).on("click", function(event){
+        var $trigger = $(".share-dropdown");
+        if($trigger !== event.target && !$trigger.has(event.target).length){
+            $(".share-dropdown-menu").slideUp("fast");
+        }
+    });
+</script>
+<script>
+    function cleardropdown(index){
+        if(index == 0){
+            document.getElementById('filterInput'+index).value = '';
+        }else{
+            document.getElementById('filterInput'+index).value = null;
+        }
+    }
+
+    function toggleDropdown(index) {
+        var dropdownContent = document.getElementById('dropdownContent' + index);
+        var isVisible = dropdownContent.style.display === 'block';
+        var allDropdowns = document.querySelectorAll('.dropdown-content');
+        allDropdowns.forEach(function (dropdown) {
+            dropdown.style.display = 'none';
+        });
+        dropdownContent.style.display = isVisible ? 'none' : 'block';
+    }
+
+    function filterTable(index) {
+        var input;
+        document.getElementById('dropdownContent' + index).style.display = 'none';
+        if (index === 0) {
+            input = document.getElementById('filterInput' + index).value;
+        } else {
+            input = document.getElementById('filterInput' + index).value.toUpperCase();
+        }
+        var table = document.getElementById('stock_reports_table');
+        var rows = table.getElementsByTagName('tr');
+        var emptyMessage = document.getElementById('emptyMessage');
+        var isEmpty = true;
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName('td');
+            var cell = cells[index];
+            if (cell) {
+                var textValue = cell.textContent || cell.innerText;
+                if (index === 0) {
+                    if (input==''){
+                        rows[i].style.display = 'table-row';
+                            isEmpty = false;
+                    }else{
+                        dateval  = textValue.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2-$1-$3");
+                        inputval  = input.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2-$1-$3");
+                        const formattedDate = formatDateString(input);
+                        if (dateval === formattedDate) {
+                            rows[i].style.display = 'table-row';
+                            isEmpty = false;
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                } else {
+                    if (textValue.toUpperCase().includes(input)) {
+                        rows[i].style.display = 'table-row';
+                        isEmpty = false;
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+        emptyMessage.style.display = isEmpty ? 'block' : 'none';
+        calculatetotal()
+    }
+
+    
+</script>  
+<script>
+    // Function to generate PDF from the table
+    function generatePDF() {
+        var element = document.getElementById('stock_reports_table'); // Assuming 'credittable' is the ID of your table element
+        var filename = 'stockreport.pdf';
+        var opt = {
+            margin: 1,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+<script>
+    function ExportToExcel(){
+        const table = document.querySelector('#stock_reports_table');
+        const ws = XLSX.utils.table_to_sheet(table);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'stockreport.xlsx');
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+                    
+{% endblock content %}

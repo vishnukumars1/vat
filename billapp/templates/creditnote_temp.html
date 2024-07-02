@@ -1,0 +1,979 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block content %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap');
+
+    body {
+        background-color: var(--body-bg);
+    }
+    .modal {
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+    .page {
+        background: var(--white);
+        background-color: white;
+        display: block;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: var(--pageShadow);
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+    }
+
+    .page[size="A4"] {
+        width: 21cm;
+        height: 29.7cm;
+        overflow: hidden;
+    }
+
+    .top-content {
+        padding-bottom: 15px;
+    }
+
+    .store-user {
+        padding-bottom: 25px;
+    }
+
+    .store-user p {
+        margin: 0;
+        font-weight: 600;
+        color: #000000;
+    }
+
+    .store-user .address {
+        font-weight: 400;
+    }
+
+    .store-user h5 {
+        color: var(--themeColor);
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    thead {
+        color: var(--white);
+        background: var(--themeColor);
+    }
+
+    .table td,
+    .table th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    tr th:first-child,
+    tr td:first-child {
+        text-align: left;
+    }
+
+    .balance-info .table td,
+    .balance-info .table th {
+        padding: 0;
+        border: 0;
+    }
+
+    .balance-info tr td:first-child {
+        font-weight: 600;
+    }
+
+    tfoot {
+        border-top: 2px solid var(--darkWhite);
+    }
+
+    tfoot td {
+        font-weight: 600;
+    }
+
+    .print-only {
+        height: auto;
+        width: auto;
+        overflow-y: auto;
+        border: none;
+    }
+
+    @media print{
+        body{
+            visibility: hidden !important; /* hide everything in body when in print mode*/
+        }
+
+        #printslip{
+            margin-left: 2vh;
+            margin-right: 2vh;
+        }
+
+        .printContainer {
+            visibility: visible !important; /* Override the rule above to only show the printables*/
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: large;
+        } 
+    }
+
+    .vl {
+        border-left: 6px solid gray;
+    }
+
+    .equal-length-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%; /* Make the container fill the height of the column */
+        margin-left: 2vh;
+        margin-right: 2vh;
+    }
+
+    .equal-length-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    #templates, #slip{
+        cursor: pointer;
+        color: white !important;
+    }
+
+    #myDropdown {
+        display: none;
+        position: absolute;
+        margin-left: 200px;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    #myDropdown  a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    #myDropdown  a:hover {
+        background-color: white;
+        
+    }
+
+    ::-webkit-scrollbar{
+        display: none
+    }
+</style>
+<style>
+    .templateToggleButtons {
+        background-color: white;
+        border-color: #68020F;
+        color: #68020F;
+    }
+
+    .templateToggleButtons:hover {
+        background-color: #68020F;
+        color: white;
+    }
+   
+</style>
+
+<div class="body-wrapper">
+    <br><br><br>
+    <div class="row p-0 m-0">
+        <div class="col-12  p-0 m-0">
+            <div class=" bg-light bg-light pb-0 mb-0 p-2" style="height:100%;width:100%">
+                            {% for message in messages %}
+            <h5>
+                <div class="alert alert-danger mt-5 message text-center" style="color: black;">
+                    {{ message }}
+                    <a type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                        <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                    </a>
+                </div>
+            </h5>
+            {% endfor %}
+            <div class="page-content">
+                <div class="card radius-15">
+                    <div class="card-body bg-light">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h3 class="mb-3">CREDITNOTE DETAILS</h3> 
+                            </div>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-5" style="text-align: right;">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a class="btn ml-5" onclick="printfun()"style="color:  #68020F;"><i class="fas fa-print"style="font-size:175%;"></i> <br>Print</a>
+                                <a class="btn ml-4" id="pdflink"style="color:  #68020F;"><i class="fas fa-file-pdf" style="font-size:175%;"></i><br>Pdf</a>
+                                <a class="btn ml-4" onclick="toggleDropdown()"style="color:  #68020F;"> <i class="fa fa-share" aria-hidden="true" style="font-size:175%;"></i><br>Share</a>
+                                <div class="dropdown-content" id="myDropdown">
+                                    <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()"style="color:  #68020F;"><i class="fab fa-whatsapp" style="font-size: 175%;"></i>WhatsApp</a>
+                                    <ul style="margin-bottom: -1px;text-align:left"><a class="btn" onclick="toggleEmailModal()"style="color:  #68020F;"><i class="fas fa-envelope" style="font-size: 175%;"></i>Email</a></ul>
+                                </div>
+                                <a class="ml-5" href="{% url 'listout_page' %}" style="text-align: right; font-size: large; color: #68020F;">
+                                    <i class="fa fa-times mt-2" aria-hidden="true"></i>
+                                </a>
+                            </div>       
+                        </div>
+                    </div>
+                    <div class="row pb-0 mb-0 mt-1" style="margin-top:-2vh">
+                        <div id="templates" class="col text-center pb-2 pt-3" style="background-color: #68020F;margin-left:15px;"  >
+                            <a class="fw-bolder fs-4" style="color: white; text-decoration: none; " >TEMPLATE</a>
+                        </div>
+                        <div id="slip" class="col text-center pb-2 pt-3" style="background-color: #68020F;margin-right:15px;" >
+                            <a class="fw-bolder fs-4" style="color: white; text-decoration: none;" >BILL SLIP</a>
+                        </div>
+                    </div>       
+                    <div id="templatediv" style=" border-radius: 2vh;">
+                        <div  id="whatToPrint" class="print-only">
+                            <!-- template1 -->
+                            <div id="whatToPrint1" class="printTemplates template1">
+                                <div class="my-5 page" size="A4" >
+                                    <div class="p-4" id="printdiv1">
+                                        <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+                                            <section>
+                                                <div class="text-center">
+                                                    <h2 class="text-white p-3" style="background:#68020F;">CREDIT NOTE</h2>
+                                                </div>
+                                            </section>
+                                            <br>
+                                            <section class="top-content ">
+                                                <div class="top-left">
+                                                    <div class="position-relative" style="text-align: left;">
+                                                        <p> Creditnote No: &nbsp; {{creditnote.reference_no}}</p>
+                                                        <p>Creditnote Date: <span>{{creditnote.returndate | date:'d-m-Y'}}</span></p>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                            <section class="store-user mt-2">
+                                                <div class="col-12">
+                                                    <div class="row  pb-3">
+                                                        <div class="col-7">
+                                                            <p><b>FROM</b>,</p>
+                                                            <h5 class="text-danger" style='margin-left: 4vh;'>{{creditnote.company.company_name }}</h5>
+                                                            <p class="address" style="margin-top: -1vh; margin-left: 4vh;"> 
+                                                                {{creditnote.company.address}}<br>
+                                                                {{creditnote.company.city}},
+                                                                {{creditnote.company.state}}<br>
+                                                                {{creditnote.company.pincode}}<br>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-5">
+                                                            <p><b>TO</b>,</p>
+                                                            <h5 class="text-danger" style='margin-left: 4vh;'>{{creditnote.party.party_name}}</h5>
+                                                            <p class="address col-8" style="margin-top: -1vh; margin-left: 2vh;"> {{creditnote.party.address}} </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                            <section class="product-area mt-4">
+                                                <table class=" table table-hover table-bordered border-dark" id="table1">
+                                                    <thead style="background-color: #68020F;color:white;">
+                                                        <tr>
+                                                            <td style="text-align: center; font-weight:bold;">Product</td>
+                                                            <td style="font-weight:bold;">HSN</td>
+                                                            <td style="font-weight:bold;">Quantity</td>
+                                                            <td style="font-weight:bold;">Price</td>
+                                                            <td style="font-weight:bold;">VAT</td>
+                                                            <td style="font-weight:bold;">Discount</td>
+                                                            <td style="font-weight:bold;">Total</td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for i in creditnoteitem_curr %}
+                                                        <tr>
+                                                            <td style="color:black; text-align: center;">{{i.items.itm_name}}</td>
+                                                            <td style="color:black">{{i.items.itm_hsn}}</td >
+                                                            <td style="color:black">{{i.quantity}}</td>
+                                                            <td style="color:black">{{i.items.itm_purchase_price}}</td>
+                                                            <td style="color:black">{{i.tax}}</td>
+                                                            <td style="color:black">{{i.discount}} </td>
+                                                            <td style="color:black">{{i.total}}</td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table><br><br>
+                                            </section>
+                                            <section class="balance-info">
+                                                <div class="row">
+                                                    <div class="col-md-8"></div>
+                                                    <div class="col-md-4">
+                                                        <table class="table table-borderless">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="color: #000;">Sub Total</td>
+                                                                    <td style="color: #000;">:</td>
+                                                                    <td class="text-right" style="color: #000;">{{creditnote.subtotal}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="color: #000;">VAT Amount</td>
+                                                                    <td style="color: #000;">:</td>
+                                                                    <td class="text-right" style="color: #000;">{{creditnote.vat}}</td>
+                                                                </tr>
+                                                                {% if inbill.adjustment != '0.00' %}
+                                                                {% if inbill.adjustment != '0' %}
+                                                                <tr>
+                                                                    <td style="color: #000;">Adjustment</td>
+                                                                    <td style="color: #000;">:</td>
+                                                                    <td class="text-right" style="color: #000;">{{creditnote.adjustment}}</td>
+                                                                </tr>
+                                                                {% endif %}
+                                                                {% endif %}
+                                                            </tbody>
+                                                        </table>
+                                                        <hr style="background-color: #000000;">
+                                                        <table class="table table-borderless">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                                    <th style="color: #000; ">:</th>
+                                                                    <th style="color: #000; text-align: right;">{{creditnote.grandtotal}}</th>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- template2 -->
+                            <div  id="whatToPrint2"  class="printTemplates template2"  style="display: none;">
+                                <div class="my-5 page" size="A4" >
+                                    <div id="printdiv2">
+                                        <div class="row px-5 py-4" style="background-color:#68020F;;" >
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4 d-flex justify-content-center">
+                                                <center class="h3 text-white"><b>CREDIT NOTE</b></center>
+                                            </div>  
+                                            <div class="col-md-4 d-flex justify-content-end">
+                                                <div class="text-white" >
+                                                    <p class="mb-0 mt-2" >Creditnote No: <b>{{creditnote.reference_no }}</b></p>
+                                                    <p class="mb-0 mt-2" >Creditnote Date: <b>{{creditnote.returndate | date:'d-m-Y'}}</b></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="px-5 py-1">
+                                            <section class="store-user"><br><br>
+                                                <div class="col-12">
+                                                    <div class="row  pb-2 mt-3">
+                                                        <div class="col-4 pl-0">
+                                                            <label class="text-white w-100 p-1 mb-1" style="background-color:#68020F;; border-top-right-radius: 4vh; border-bottom-right-radius: 4vh;" ><b>BILLING ADDRESS</b></label>
+                                                            <h5 class="text-danger" style="font-weight: bold;">{{creditnote.company.company_name}}</h5>
+                                                            <p class="address" style="font-weight: bold;color: #000;">
+                                                            {{creditnote.company.address}}
+                                                            <br>
+                                                            {{creditnote.company.city}}
+                                                            <br>
+                                                            {{creditnote.company.state}} - {{creditnote.company.pincode}}
+                                                            </p>  
+                                                        </div>
+                                                        <div class="col-4"></div>
+                                                        <div class="col-4 pr-0">
+                                                            <label class="text-white w-100 p-1 mb-1" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; background-color: #68020F;" ><b>SHIPPING ADDRESS</b></label>
+                                                            <h5 class="text-danger" style="font-weight: bold;">{{creditnote.party.party_name}}</h5>
+                                                            <p class="address" style="font-weight: bold;color: #000;">{{creditnote.party.address | linebreaksbr}} </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                            <section class="product-area mt-2">
+                                                <table class="table table-hover table-bordered " id="table2">
+                                                    <thead style="background-color:#68020F;color:white;" >
+                                                        <tr class="template3tablehead">
+                                                            <th class="text-center">Products</th>
+                                                            <th class="text-center">HSN</th>
+                                                            <th class="text-center">Quantity</th>
+                                                            <th class="text-center">Rate</th>
+                                                            <th class="text-center">VAT</th>
+                                                            <th class="text-center">Discount</th>
+                                                            <th class="text-center">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody style="border: 1px solid #615dff;" >
+                                                        {% for i in creditnoteitem_curr %}
+                                                            <tr>
+                                                                <td style="color:black; text-align: center;">{{i.items.itm_name}}</td>
+                                                                <td style="color:black">{{i.items.itm_hsn}}</td >
+                                                                <td style="color:black">{{i.quantity}}</td>
+                                                                <td style="color:black">{{i.items.itm_purchase_price}}</td>
+                                                                <td style="color:black">{{i.tax}}</td>
+                                                                <td style="color:black">{{i.discount}} </td>
+                                                                <td style="color:black">{{i.total}}</td>
+                                                            </tr>
+                                                        {% endfor %} 
+                                                    </tbody>
+                                                </table>
+                                            </section>
+                                            <section class="balance-info">
+                                                <div class="row mt-3">
+                                                    <div class="col-4"></div>
+                                                    <div class="col-4"></div>
+                                                    <div class="col-4"><br><br>
+                                                        <table class="table table-borderless">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="color: #000;">Sub Total</td>
+                                                                    <td style="color: #000;">:</td>
+                                                                    <td class="text-right" style="color: #000;">{{creditnote.subtotal}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="color: #000;">VAT Amount</td>
+                                                                    <td style="color: #000;">:</td>
+                                                                    <td class="text-right" style="color: #000;">{{creditnote.vat}}</td>
+                                                                </tr>
+                                                                {% if creditnote.adjustment != '0.00' %}
+                                                                {% if creditnote.adjustment != '0' %}
+                                                                <tr >
+                                                                    <td style="color: #000;">Adjustment</td>
+                                                                    <td style="color: #000;">:</td>
+                                                                    <td class="text-right" style="color: #000;">{{creditnote.adjustment}}</td>
+                                                                </tr>
+                                                                {% endif %}
+                                                                {% endif %}
+                                                            </tbody>
+                                                        </table>
+                                                        <hr style="background-color: #000000;">
+                                                        <table class="table table-borderless">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                                    <th style="color: #000; ">:</th>
+                                                                    <th style="color: #000; text-align: right;">{{creditnote.grandtotal}}</th>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div> 
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- template3 -->
+                            <div id="whatToPrint3" class="printTemplates template3"  style="display: none;" >
+                                <div class="my-5 page"  size="A4" >
+                                    <div class="" id="printdiv3">
+                                        <div class="row">
+                                            <div class="col-sm-12" style="background-image: linear-gradient(red,#68020F); color: white;">
+                                                <br>
+                                                <p style="font-size: 4vh; text-align: center;">CREDITNOTE</p>
+                                                <p style=" text-align: center;"> 
+                                                    {{creditnote.company.company_name}} <br>
+                                                    {{creditnote.company.address}} <br>
+                                                    {{creditnote.company.city}},
+                                                    {{creditnote.company.state}}<br>
+                                                    {{creditnote.company.cemail}}
+                                                    <br>
+                                                </p>
+                                            </div>
+                                            <div class="row col-12">
+                                                <div class="col-md-1"></div>
+                                                <div class="col-5">
+                                                    <br><br><br>
+                                                    <p style="color:black;"> <span style=" font-weight: bold;">To: </span><br>
+                                                    {{creditnote.party.party_name}}<br>
+                                                    {{creditnote.party.address|linebreaksbr }}
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-2"></div>
+                                                <div class="col-4">
+                                                    <br><br><br>
+                                                    <table class="table table-borderless">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="color: #000; font-weight: bold;">Creditnote No : </td>
+                                                                <td style="color: #000; text-align: left;">{{ creditnote.reference_no }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="color: #000; font-weight: bold;">Creditnote Date : </td>
+                                                                <td style="color: #000; text-align: left;">{{creditnote.returndate | date:'d-m-Y'}}<td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1"></div>
+                                            <div class="col-md-10"><br>
+                                                <table class="table table-hover table-bordered  template3table" id="table3" style="border:1px solid black">
+                                                    <thead>
+                                                        <tr class="template3tablehead" style="background-color:#68020F;color:white;">
+                                                            <th class="text-center">Product</th>
+                                                            <th class="text-center">HSN</th>
+                                                            <th class="text-center">Quantity</th>
+                                                            <th class="text-center">Rate</th>
+                                                            <th class="text-center">VAT</th>
+                                                            <th class="text-center">Discount</th>
+                                                            <th class="text-center">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for i in creditnoteitem_curr %}
+                                                            <tr>
+                                                                <td style="color:black; text-align: center;">{{i.items.itm_name}}</td>
+                                                                <td style="color:black">{{i.items.itm_hsn}}</td >
+                                                                <td style="color:black">{{i.quantity}}</td>
+                                                                <td style="color:black">{{i.items.itm_purchase_price}}</td>
+                                                                <td style="color:black">{{i.tax}}</td>
+                                                                <td style="color:black">{{i.discount}} </td>
+                                                                <td style="color:black">{{i.total}}</td>
+                                                            </tr>
+                                                        {% endfor %} 
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div> 
+                                        <section class="balance-info">
+                                            <div class="row">
+                                                <div class="col-md-7"></div>
+                                                <div class="col-md-4">
+                                                    <br>
+                                                    <table class="table table-borderless">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="color: #000;">Sub Total</td>
+                                                                <td style="color: #000;">:</td>
+                                                                <td class="text-right" style="color: #000;">{{creditnote.subtotal}}</td>
+                                                            </tr>
+                                                            <tr >
+                                                                <td style="color: #000;">VAT Amount</td>
+                                                                <td style="color: #000;">:</td>
+                                                                <td class="text-right" style="color: #000;">{{creditnote.vat}}</td>
+                                                            </tr>
+                                                            {% if inbill.adjustment != '0.00' %}
+                                                            {% if inbill.adjustment != '0' %}
+                                                            <tr >
+                                                                <td style="color: #000;">Adjustment</td>
+                                                                <td style="color: #000;">:</td>
+                                                                <td class="text-right" style="color: #000;">{{creditnote.adjustment}}</td>
+                                                            </tr>
+                                                            {% endif %}
+                                                            {% endif %}
+                                                        </tbody>
+                                                    </table>
+                                                    <hr style="background-color: #000000;">
+                                                    <table class="table table-borderless">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                                <th style="color: #000; ">:</th>
+                                                                <th style="color: #000; text-align: right;">{{creditnote.grandtotal}}</th>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </section> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="templateToggle" class="templateToggleSegment mt-3 mb-0 w-100 d-flex justify-content-center">
+                            <button id="toggleTemplate1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn btn-outline-danger bg-gradientt btn-sm m-2 active templateToggleButtons">1</button>
+                            <button id="toggleTemplate2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn btn-outline-danger bg-gradientt btn-sm m-2 templateToggleButtons">2</button>
+                            <button id="toggleTemplate3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn btn-outline-danger bg-gradientt btn-sm m-2 templateToggleButtons">3</button>
+                        </div>           
+                    </div>
+                    <div id="slipdiv" style="border-radius: 2vh; display: none;">
+                        <div class="my-5 page" size="A4">
+                            <div class="row" style="margin-top: 20%;" id="printslip">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6 ml-3">
+                                    <div class="card bg-white" style="border: 1px dotted black; box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);">
+                                        <div class="mt-2" style="text-align: center;">
+                                            <div class="text-center" style="font-size: 3vh; color: black;">
+                                                <b>{{creditnote.company.company_name}} </b>
+                                            </div>
+                                            <span style="font-size: x-small; color: black;">
+                                                {{creditnote.company.address }} <br>
+                                                {{creditnote.company.city}},
+                                                {{creditnote.company.state}}
+                                                {{creditnote.company.pincode}} <br>
+                                                {{creditnote.company.user.email }} <br>
+                                                {{creditnote.company.contact }} 
+                                            </span>
+                                        </div>
+                                        <div class="ml-4 mt-2" style="color: black;">
+                                            <div class="row">
+                                                <div class="col-md-6 text-left">Creditnote No:</div>
+                                                <div class="col-md-5 text-right">{{creditnote.reference_no}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 text-left">Customer Name:</div>
+                                                <div class="col-md-5 text-right">{{creditnote.party.party_name}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 text-left">Creditnote Date :</div>
+                                                <div class="col-md-5 text-right">{{creditnote.returndate | date:'d-m-Y'}}</div>
+                                            </div>
+                                        </div>
+                                        <div><br>
+                                            <div class="equal-length-container" style="color: black; font-weight: bold;">
+                                                <div class="equal-length-item" style=" text-align: center;">
+                                                    Product
+                                                    <hr style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
+                                                </div>
+                                                <div class="equal-length-item ml-2"  style=" text-align:center;">
+                                                    HSN
+                                                    <hr style="border-bottom: 1px solid black; margin-top:1vh; width:63%; margin-left: 10px;">
+                                                </div>
+                                                <div class="equal-length-item"  style=" text-align: center; ">
+                                                    Qty
+                                                    <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%;  margin-left: 10px;">
+                                                </div>
+                                                <div class="equal-length-item"  style=" text-align: center; ">
+                                                    Price
+                                                    <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
+                                                </div>
+                                                <div class="equal-length-item"  style=" text-align: center; ">
+                                                    VAT
+                                                    <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%;  margin-left: 10px;">
+                                                </div>
+                                                <div class="equal-length-item" style=" text-align: center; ">
+                                                    Total
+                                                    <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            {% for i in creditnoteitem_curr %}
+                                            <div class="equal-length-container" style="color: black; font-size: small; word-wrap: break-word; margin-bottom: 1vh;">
+                                                <div class="equal-length-item"  style="text-align: center; margin-left: 2px;">
+                                                    {{i.items.itm_name}}
+                                                </div>
+                                                <div class="equal-length-item" style="text-align: right;">
+                                                    {{i.items.itm_hsn}}
+                                                </div>
+                                                <div class="equal-length-item" style="text-align: center;">
+                                                    {{i.quantity}}
+                                                </div>
+                                                <div class="equal-length-item" style="text-align: center; ">
+                                                    {{i.items.itm_purchase_price}}
+                                                </div>
+                                                <div class="equal-length-item" id="tax{{ forloop.counter }}" style="text-align: center;">
+                                                    {{i.tax}}
+                                                </div>
+                                                
+                                                <div class="equal-length-item" style="text-align: center; ">
+                                                    {{i.total}}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div><br>
+                                            {% if dis != 0 %}
+                                            <div class="row ml-1">
+                                                <div class="col-md-5 text-left" style=" color: black;">
+                                                    Discount
+                                                </div>
+                                                <div class="col-md-6 text-right ml-2" style="color: black;">
+                                                    {{ dis }}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            <div class="row ml-1">
+                                                <div class="col-md-5 text-left" style=" color: black;">
+                                                    Subtotal
+                                                </div>
+                                                <div class="col-md-6 text-right ml-2" style="color: black;">
+                                                    {{ creditnote.subtotal }}
+                                                </div>
+                                            </div>
+
+                                            {% if creditnote.adjustment != '0.00' %}
+                                            {% if creditnote.adjustment != '0' %}
+                                            <div class="row ml-1">
+                                                <div class="col-md-5 text-left" style=" color: black;">
+                                                    Adjust
+                                                </div>
+                                                <div class="col-md-6 text-right ml-2" style="color: black;">
+                                                    {{ creditnote.adjustment }}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            {% endif %}
+                                            <hr class="ml-2 mr-2" style="color: black; border-bottom: 1px solid black; ">
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <div class="row">
+                                                <div class="col-md-5 text-left ml-2" style=" font-size: large; color: black; font-weight: bold;">
+                                                    Total
+                                                </div>
+                                                <div class="col-md-6 text-right ml-2" style="font-size: large; color: black; font-weight: bold;">
+                                                    {{ creditnote.grandtotal }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="ml-2 mt-2">
+                                            <p>
+                                                Created by : {{creditnote.user.first_name}}  {{creditnote.user.last_name}} <br>
+                                                Printed by {{staff.first_name}}  {{staff.last_name}} On <span id="datetimedisplay"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>          
+    </div>
+</div> 
+       
+        
+    
+<!-- Add the email modal -->
+<div id="emailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEmailModal()" style="position: absolute; top: 0; right: 0; padding: 10px;cursor:pointer;color:#68020F;">&times;</span>
+        <br>
+        <div class="modal-header" style="background:  #68020F;color:white;">
+            <h5 class="m-3 text-uppercase text-light" id="shareBillEmailLabel">Share  vatbill Via Email</h5> 
+        </div>
+        <div class="modal-body" style="background:  #68020F;color:white;">
+            <div class="card p-3 m-3">
+                <form action="{% url 'sharebill' creditnote.id %}" method="post" class="needs-validation"
+                    id="share_to_email_form" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="emailIds">Email IDs</label>
+                        <textarea class="form-control text-dark" name="email_ids" id="emailIds" rows="5"
+                            placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="item_unitname">Message(optional)</label>
+                        <textarea name="email_message" id="email_message" class="text-dark form-control" cols=""
+                            rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                <input type="submit" id="share_with_email"
+                class="submitShareEmailBtn rounded-pill w-50 my-4 mx-3" value="SEND MAIL" style="color: #68020F;">
+            </div>
+        </div>
+    </div>
+</div>
+          
+<script>
+    // Function to open the email modal
+    function toggleEmailModal() {
+        document.getElementById("emailModal").style.display = "block";
+    }
+
+    // Function to close the email modal
+    function closeEmailModal() {
+        document.getElementById("emailModal").style.display = "none";
+    }
+
+    // Handle the submission of the email form
+    $(document).ready(function () {
+    $('#share_with_email').on('click', function () {
+      var emailsInput = document.getElementById('emailIds');
+      var emailsString = emailsInput.value.trim();
+
+      var emails = emailsString.split(',').map(function (email) {
+        return email.trim();
+      });
+
+      var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+      var invalidEmails = []
+      if (emailsString == "") {
+        alert('Enter valid email addresses..')
+      }
+      else {
+        for (var i = 0; i < emails.length; i++) {
+          var currentEmail = emails[i];
+
+          if (currentEmail != "" && !emailRegex.test(currentEmail)) {
+            console.log(currentEmail + ' is invalid!');
+            invalidEmails.push(currentEmail)
+          }
+        }
+
+        if (invalidEmails.length > 0) {
+          alert('Invalid emails..Please check!\n' + invalidEmails)
+          // alert(invalidEmails)
+        } else {
+          $('#share_to_email_form').submit();
+        }
+      }
+    })
+  });
+   
+</script>
+<script>
+    function toggleDropdown() {
+        var dropdownContent = document.getElementById("myDropdown");
+        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
+    }
+</script>
+<script>
+    function updateDateTime() {
+        var currentDate = new Date();
+        var day = currentDate.getDate();
+        var month = currentDate.getMonth() + 1;
+        var year = currentDate.getFullYear();
+        var hours = currentDate.getHours();
+        var minutes = currentDate.getMinutes();
+        var seconds = currentDate.getSeconds();
+        var formattedDay = (day < 10) ? `0${day}` : day;
+        var formattedMonth = (month < 10) ? `0${month}` : month;
+        var formattedHours = (hours < 10) ? `0${hours}` : hours;
+        var formattedMinutes = (minutes < 10) ? `0${minutes}` : minutes;
+        var formattedSeconds = (seconds < 10) ? `0${seconds}` : seconds;
+        var formattedDateTime = `${formattedDay}/${formattedMonth}/${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+        document.getElementById('datetimedisplay').textContent = formattedDateTime;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+</script>
+<script>
+    l = parseInt('{{itm_len}}')
+    place = '{{inbill.supplyplace}}'
+    for (var i=1; i<=l; i++){
+        val =  document.getElementById('tax'+i).innerText
+        tax = val.split('[')[1];
+        tax = tax.split(']')[0]
+        if(place == 'State'){
+
+            document.getElementById('taxval'+i).innerText = 'GST' + tax;
+        }else{
+            document.getElementById('taxval'+i).innerText = 'IGST' + tax;
+        }
+    }
+</script>
+<script>
+    $(document).ready(function(){
+        $('#templates').css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
+        $('#slip a').removeClass('text-light')
+        $('#templates a').addClass('text-light')
+        $('#slip').css({'border-bottom': 'none'})
+        $('#templatediv').attr('hidden',false)
+        $('#slipdiv').attr('hidden',true)
+
+        $('#templates').on('click',function(){
+            $(this).css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
+            $('#slip a').removeClass('text-light')
+            $('#templates a').addClass('text-light')
+            $('#slip').css({'border-bottom': 'none'})
+            $('#templatediv').attr('hidden',false)
+            $('#slipdiv').attr('hidden',true)
+            document.getElementById('slipdiv').style.display = 'none';
+        })
+    })
+
+    $(document).ready(function(){
+        $('#slip').on('click',function(){
+        $('#slip').css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
+        $('#templates a').removeClass('text-light')
+        $('#slip a').addClass('text-light')
+        $('#templates').css({'border-bottom': 'none'})
+        $('#templatediv').attr('hidden',true)
+        $('#slipdiv').attr('hidden',false)
+        document.getElementById('slipdiv').style.display = 'block';
+        })
+    })
+
+    function toggleTemplate(templateId,buttonId){
+            $('.printTemplates').css('display','none');
+            $('#'+templateId).css('display','block');
+            $('.templateToggleButtons').removeClass('active');
+            $('#'+buttonId).addClass('active');
+            selectedTemplateId = templateId;
+            console.log("Selected Template ID:", selectedTemplateId);
+            scrollToTop();
+       
+            
+        }
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+</script>
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        $(document).on('click', '#pdflink', function (event) {
+            event.preventDefault();
+            print1 = document.getElementById('whatToPrint1')
+            print2 = document.getElementById('whatToPrint2')
+            print3 = document.getElementById('whatToPrint3')
+            print4 = document.getElementById('slipdiv')
+
+            if (print1.style.display !== 'none'){
+                var element = document.getElementById('printdiv1') 
+            }
+
+            if (print2.style.display !== 'none'){
+                var element = document.getElementById('printdiv2') 
+            }
+
+            if (print3.style.display !== 'none'){
+                var element = document.getElementById('printdiv3') 
+            }
+
+            if (print4.style.display !== 'none'){
+                var element = document.getElementById('printslip') 
+            }
+
+            var opt =
+            {
+                margin: 1,
+                filename: 'Creditnote'+ '{{creditnote.reference_no}}' + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+    });
+</script>
+<script>
+    function printfun(){
+        print4 = document.getElementById('slipdiv')
+        if (print4.style.display !== 'none'){
+            var printContents = document.getElementById("slipdiv").innerHTML;
+        }else{
+            var printContents = document.getElementById("whatToPrint").innerHTML;
+        }
+        var $printerDiv = $('<div class="printContainer"></div>');
+        $printerDiv.html(printContents); 
+        $('body').append($printerDiv).addClass("printingContent"); 
+        window.print(); 
+        $printerDiv.remove();
+        $('body').removeClass("printingContent");
+    }
+    function shareOnWhatsApp() {
+    var url = window.location.href;
+    var text = url;
+    text = encodeURIComponent(text);
+    var whatsappUrl = "whatsapp://send?text=" + text;
+    window.location.href = whatsappUrl;
+  }
+ 
+</script>
+{% endblock %}

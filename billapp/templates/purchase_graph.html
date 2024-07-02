@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block title %}Purchase Reports{% endblock %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .chart-page-container {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .chart-container {
+        width: 65%;
+        margin: 0 auto;
+        margin-right: 8%;
+        margin-top: 5%;
+    }
+
+    #chartToggleForm {
+        margin-left: 20px;
+    }
+</style>
+
+<div class="chart-page-container">
+    <div class="chart-container">
+        <div class="d-flex justify-content-end">
+            <div class="ml-auto">
+                <a href="{% url 'Purchasereport' %}" style="font-size: x-large; color: black;" title="Close">
+                    <i class="fa fa-times-circle fs-6 tb close_pad mt-4 "  aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+        <form id="chartToggleForm">
+            <label><input type="radio" name="chartType" value="monthly" checked> Monthly</label>
+            <label><input type="radio" name="chartType" value="yearly"> Yearly</label>
+        </form>
+
+        <div id="monthlyChartContainer" style="display:block;">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+
+        <div id="yearlyChartContainer" style="display:none;">
+            <canvas id="yearlyChart"></canvas>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var monthlyChartContainer = document.getElementById('monthlyChartContainer');
+                var yearlyChartContainer = document.getElementById('yearlyChartContainer');
+        
+                document.getElementById('chartToggleForm').addEventListener('change', function () {
+                    var selectedChart = document.querySelector('input[name="chartType"]:checked').value;
+        
+                    if (selectedChart === 'monthly') {
+                        monthlyChartContainer.style.display = 'block';
+                        yearlyChartContainer.style.display = 'none';
+                    } else if (selectedChart === 'yearly') {
+                        monthlyChartContainer.style.display = 'none';
+                        yearlyChartContainer.style.display = 'block';
+                    }
+                });
+        
+                var ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+                var ctxYearly = document.getElementById('yearlyChart').getContext('2d');
+        
+                var monthlyData = {
+                    labels: {{ chart_data.monthly_labels|safe }},
+                    datasets: [{
+                        label: 'Monthly Purchase',
+                        data: {{ chart_data.monthly_purchase|safe }},
+                        backgroundColor: '#68020F',
+                        borderColor: '#68020F',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Monthly Debit',
+                        data: {{ chart_data.monthly_debit|safe }},
+                        backgroundColor: '#E97451',
+                        borderColor: '#E97451',
+                        borderWidth: 1
+                    }]
+                };
+        
+                var yearlyData = {
+                    labels: {{ chart_data.yearly_labels|safe }},
+                    datasets: [{
+                        label: 'Yearly Purchase',
+                        data: {{ chart_data.yearly_purchase|safe }},
+                        backgroundColor: '#68020F',
+                        borderColor: '#68020F',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Yearly Debit',
+                        data: {{ chart_data.yearly_debit|safe }},
+                        backgroundColor: '#E97451',
+                        borderColor: '#E97451',
+                        borderWidth: 1
+                    }]
+                };
+        
+                var monthlyChart = new Chart(ctxMonthly, {
+                    type: 'bar',
+                    data: monthlyData,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+        
+                var yearlyChart = new Chart(ctxYearly, {
+                    type: 'line',
+                    data: yearlyData,
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            });
+        </script>
+        
+    </div>
+</div>
+{% endblock %}

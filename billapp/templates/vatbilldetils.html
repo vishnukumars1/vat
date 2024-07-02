@@ -1,0 +1,1009 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block content %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap');
+
+    body {
+        background-color: var(--body-bg);
+    }
+    .modal {
+    z-index: 9999;
+    overflow: scroll;
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+    .page {
+        background: var(--white);
+        background-color: white;
+        display: block;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: var(--pageShadow);
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+    }
+
+    .page[size="A4"] {
+        width: 21cm;
+        height: 29.7cm;
+        overflow: hidden;
+    }
+
+    .top-content {
+        padding-bottom: 15px;
+    }
+
+    .store-user {
+        padding-bottom: 25px;
+    }
+
+    .store-user p {
+        margin: 0;
+        font-weight: 600;
+        color: #000000;
+    }
+
+    .store-user .address {
+        font-weight: 400;
+    }
+
+    .store-user h5 {
+        color: var(--themeColor);
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    thead {
+        color: var(--white);
+        background: var(--themeColor);
+    }
+
+    .table td,
+    .table th {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    tr th:first-child,
+    tr td:first-child {
+        text-align: left;
+    }
+
+    .balance-info .table td,
+    .balance-info .table th {
+        padding: 0;
+        border: 0;
+    }
+
+    .balance-info tr td:first-child {
+        font-weight: 600;
+    }
+
+    tfoot {
+        border-top: 2px solid var(--darkWhite);
+    }
+
+    tfoot td {
+        font-weight: 600;
+    }
+
+    .print-only {
+        height: auto;
+        width: auto;
+        overflow-y: auto;
+        border: none;
+    }
+    .button_border {
+        border: 1px solid #68020F;
+        color: #68020F;
+    }
+
+    @media print{
+        body{
+            visibility: hidden !important; /* hide everything in body when in print mode*/
+        }
+
+        #printslip{
+            margin-left: 2vh;
+            margin-right: 2vh;
+        }
+
+        .printContainer {
+            visibility: visible !important; /* Override the rule above to only show the printables*/
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: large;
+        } 
+    }
+
+    .vl {
+        border-left: 6px solid gray;
+    }
+
+    .equal-length-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%; /* Make the container fill the height of the column */
+        margin-left: 2vh;
+        margin-right: 2vh;
+    }
+
+    .equal-length-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    #templates, #slip{
+        cursor: pointer;
+    }
+
+    #myDropdown {
+        display: none;
+        position: absolute;
+        margin-left: 200px;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    #myDropdown  a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    #myDropdown  a:hover {
+        background-color: #d38f8f;
+    }
+
+    ::-webkit-scrollbar{
+        display: none
+    }
+    .button_border:hover {
+            background-color: #68020F;
+            color: white;
+        }
+      
+</style>
+
+
+<div class="body-wrapper">
+    <br><br><br>
+    <div class="row p-0 m-0">
+        <div class="col-12  p-0 m-0">
+            <div class=" bg-light bg-light pb-0 mb-0 p-2" style="height:100%;width:100%">
+                            {% for message in messages %}
+            <h5>
+                <div class="alert alert-danger mt-5 message text-center" style="color: black;">
+                    {{ message }}
+                    <a type="button" class="close" data-dismiss="alert" aria-label="Close" style="float: right;">
+                        <span aria-hidden="true" style="font-size: large; color: #68020F;">&times;</span>
+                    </a>
+                </div>
+            </h5>
+            {% endfor %}
+                
+                <p></p>
+                <div class="page-content">
+                    <div class="card radius-15">
+                        <div class="card-body bg-light">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h3 class="mb-3">PURCHASE  BILL DETAILS</h3> 
+                                </div>
+                                <div class="col-md-2"></div>
+                                <div class="col-md-6" style="text-align: right;">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a class="btn ml-5" onclick="printfun()"><i class="fas fa-print" style="font-size:175%;color:#68020F;"></i> <br>Print</a>
+                                    <a class="btn ml-4" id="pdflink"><i class="fas fa-file-pdf" style="font-size:175%;color:#68020F;"></i><br>Pdf</a>
+                                    <a class="btn ml-4" onclick="toggleDropdown()">  <i class="fas fa-share" style="font-size:175%;color:#68020F;"></i><br>Share</a>
+                                    <div class="dropdown-content" id="myDropdown">
+                                        <a class="dropdown-item" href="javascript:void(0);" onclick="shareOnWhatsApp()"><img width="30px" src="data:image/jpeg;base64,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" alt="no img">WhatsApp</a>
+                                        <ul style="margin-bottom: -1px;text-align:left"><a class="btn ml-4" onclick="toggleEmailModal()"><img width="30px" src="data:image/png;base64,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" alt="no img">Email</a></ul>
+                                    </div>
+                                    <a class="ml-5" href="{% url 'allbill' %}" style="text-align: right; font-size: large; color: black;">
+                                        <i class="fa fa-times mt-2" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                
+                            </div>
+                            </div>
+                            <div class="row pb-0 mb-0 mt-1" style="margin-top:-2vh">
+                                <div id="templates" class="col text-center pb-2 pt-4"   >
+                                    <a class="fw-bolder fs-4" style="color: rgb(0, 0, 0); text-decoration: none; " >TEMPLATE</a>
+                                </div>
+                                <div id="slip" class="col text-center pb-2 pt-3"  >
+                                    <a class="fw-bolder fs-4" style="color: rgb(0, 0, 0); text-decoration: none;" >BILL SLIP</a>
+                                </div>
+                            </div>
+                            
+                            <div id="templatediv" style=" border-radius: 2vh;">
+                                <div  id="whatToPrint" class="print-only">
+                                    <!-- template1 -->
+                                    <div id="whatToPrint1" class="printTemplates template1">
+                                        <div class="my-5 page" size="A4" >
+                                            <div class="p-4" id="printdiv1">
+                                                <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+                                                    <section>
+                                                        <div class="text-center">
+                                                            <h2 class="text-white  p-3" style="background-color: #68020F;color:white;">PURCHASE BILL</h2>
+                                                        </div>
+                                                    </section>
+                                                    <br>
+                                                    <section class="top-content ">
+                                                        <div class="top-left">
+                                                            <div class="position-relative" style="text-align: left;">
+                                                                <p> Bill No: &nbsp; {{ pbill.billno }}</p>
+                                                                <p>Bill Date: <span>{{pbill.billdate | date:'d-m-Y'}}</span></p>
+                                                            </div>
+                                                        </div>
+                                                    </section>
+
+                                                    <section class="store-user mt-2">
+                                                        <div class="col-12">
+                                                            <div class="row  pb-3">
+                                                                <div class="col-7">
+                                                                    <p><b>FROM</b>,</p>
+                                                                    <h5 class="text-danger" style='margin-left: 4vh;'>{{pbill.company.company_name }}</h5>
+                                                                    <p class="address" style="margin-top: -1vh; margin-left: 4vh;"> 
+                                                                        {{pbill.company.address}}<br>
+                                                                        {{pbill.company.city}},
+                                                                        {{pbill.company.state}}<br>
+                                                                        {{pbill.company.pincode}}<br>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="col-5">
+                                                                    <p><b>TO</b>,</p>
+                                                                    <h5 class="text-danger" style='margin-left: 4vh;'>{{pbill.party.party_name}}</h5>
+                                                                    <p class="address col-8" style="margin-top: -1vh; margin-left: 2vh;"> {{ pbill.party.address}} </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </section>
+
+                                                    <section class="product-area mt-4">
+                                                        <table class=" table table-hover table-bordered border-dark" id="table1">
+                                                            <thead style="background-color:#68020F;">
+                                                                <tr>
+                                                                    <td style="text-align: center; font-weight:bold; color:rgb(255, 255, 255) ">Items</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254) ">HSN</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 251, 251) ">Quantity</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 255, 255)">Price</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254)">VAT</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 255, 255)">Discount</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254)">Total</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {% for i in pitm %}
+                                                                <tr>
+                                                                    <td style="color:black; text-align: center;">{{i.product.itm_name}}</td>
+                                                                    <td style="color:black">{{i.product.itm_hsn}}</td >
+                                                                    <td style="color:black">{{i.qty}}</td>
+                                                                    <td style="color:black">{{i.product.itm_purchase_price}}</td>
+                                                                    <td style="color:black">{{i.VAT}}</td>
+                                                                    <td style="color:black">{{i.discount}} </td>
+                                                                    <td style="color:black">{{i.total}}</td>
+                                                                </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table><br><br>
+                                                    </section>
+                                        
+                                                    <section class="balance-info">
+                                                        <div class="row">
+                                                            <div class="col-md-8"></div>
+                                                            <div class="col-md-4">
+                                                                <table class="table table-borderless">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td style="color: #000;">Sub Total</td>
+                                                                            <td style="color: #000;">:</td>
+                                                                            <td class="text-right" style="color: #000;">{{pbill.subtotal}}</td>
+                                                                        </tr>
+                                                        
+                                                                        <tr >
+                                                                            <td style="color: #000;">VAT Amount</td>
+                                                                            <td style="color: #000;">:</td>
+                                                                            <td class="text-right" style="color: #000;">{{pbill.taxamount}}</td>
+                                                                        </tr>
+                                                                        {% if pbill.adjust != '0.00' %}
+                                                                        {% if pbill.adjust != '0' %}
+                                                                        <tr >
+                                                                            <td style="color: #000;">Adjustment</td>
+                                                                            <td style="color: #000;">:</td>
+                                                                            <td class="text-right" style="color: #000;">{{pbill.adjust}}</td>
+                                                                        </tr>
+                                                                        {% endif %}
+                                                                        {% endif %}
+                                                                    </tbody>
+                                                                </table>
+                                                                <hr style="background-color: #000000;">
+                                                                <table class="table table-borderless">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                                            <th style="color: #000; ">:</th>
+                                                                            <th style="color: #000; text-align: right;">{{pbill.grandtotal}}</th>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                        
+                                    <!-- template2 -->
+                                    <div  id="whatToPrint2"  class="printTemplates template2"  style="display: none;">
+                                        <div class="my-5 page" size="A4" >
+                                            <div id="printdiv2">
+                                                <div class="row px-5 py-4" style="background-color:#68020F" >
+                                                    <div class="col-md-4"></div>
+                                                    <div class="col-md-4 d-flex justify-content-center">
+                                                        <center class="h3 text-white"><b>PURCHASE BILL</b></center>
+                                                    </div>  
+                                                    <div class="col-md-4 d-flex justify-content-end">
+                                                        <div class="text-white" >
+                                                            <p class="mb-0 mt-2" >Bill No: <b>{{pbill.billno }}</b></p>
+                                                            <p class="mb-0 mt-2" >Bill Date: <b>{{pbill.billdate | date:'d-m-Y'}}</b></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="px-5 py-1">
+                                                    <section class="store-user"><br><br>
+                                                        <div class="col-12">
+                                                            <div class="row  pb-2 mt-3">
+                                                                <div class="col-4 pl-0">
+                                                                    <label class="text-white w-100 p-1 mb-1" style="background-color:#68020F; border-top-right-radius: 4vh; border-bottom-right-radius: 4vh;" ><b>BILLING ADDRESS</b></label>
+                                                                    <h5 class="text-secondary" style="font-weight: bold;">{{pbill.company.company_name}}</h5>
+                                                                    <p class="address" style="font-weight: bold;color: #000;">
+                                                                    {{pbill.company.address}}
+                                                                    <br>
+                                                                    {{pbill.company.city}}
+                                                                    <br>
+                                                                    {{pbill.company.state}} - {{pbill.company.pincode}}
+                                                                    </p>  
+                                                                </div>
+                                                                <div class="col-4"></div>
+                                                                <div class="col-4 pr-0">
+                                                                    <label class="text-white w-100 p-1 mb-1" style="border-top-right-radius: 4vh; border-bottom-right-radius: 4vh; background-color:#68020F;" ><b>SHIPPING ADDRESS</b></label>
+                                                                    <h5 class="text-secondary" style="font-weight: bold;">{{pbill.party.party_name}}</h5>
+                                                                    <p class="address" style="font-weight: bold;color: #000;">{{ pbill.party.address | linebreaksbr}} </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </section>
+                                        
+                                                    <section class="product-area mt-2">
+                                                        <table class=" table table-hover table-bordered border-dark" id="table1">
+                                                            <thead style="background-color:#68020F;">
+                                                                <tr>
+                                                                    <td style="text-align: center; font-weight:bold; color:rgb(255, 255, 255) ">Items</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254) ">HSN</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 251, 251) ">Quantity</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 255, 255)">Price</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254)">VAT</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 255, 255)">Discount</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254)">Total</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody style="border: 1px solid #615dff;" >
+                                                                {% for i in pitm %}
+                                                                    <tr>
+                                                                        <td style="color:black; text-align: center;">{{i.product.itm_name}}</td>
+                                                                        <td style="color:black">{{i.product.itm_hsn}}</td >
+                                                                        <td style="color:black">{{i.qty}}</td>
+                                                                        <td style="color:black">{{i.product.itm_purchase_price}}</td>
+                                                                        <td style="color:black">{{i.VAT}}</td>
+                                                                        <td style="color:black">{{i.discount}} </td>
+                                                                        <td style="color:black">{{i.total}}</td>
+                                                                    </tr>
+                                                                {% endfor %} 
+                                                            </tbody>
+                                                        </table>
+                                                    </section>
+                                        
+                                                    <section class="balance-info">
+                                                        <div class="row mt-3">
+                                                            <div class="col-4"></div>
+                                                            <div class="col-4"></div>
+                                                            <div class="col-4"><br><br>
+                                                                <table class="table table-borderless">
+                                                                    <tbody>
+                                                                        <tr >
+                                                                            <td style="color: #000;">Sub Total</td>
+                                                                            <td style="color: #000;">:</td>
+                                                                            <td class="text-right" style="color: #000;">{{pbill.subtotal}}</td>
+                                                                        </tr>
+                                                                        
+
+                                                                        <tr >
+                                                                            <td style="color: #000;">VAT Amount</td>
+                                                                            <td style="color: #000;">:</td>
+                                                                            <td class="text-right" style="color: #000;">{{pbill.taxamount}}</td>
+                                                                        </tr>
+
+                                                                        {% if pbill.adjust != '0.00' %}
+                                                                        {% if pbill.adjust != '0' %}
+                                                                        <tr >
+                                                                            <td style="color: #000;">Adjustment</td>
+                                                                            <td style="color: #000;">:</td>
+                                                                            <td class="text-right" style="color: #000;">{{pbill.adjust}}</td>
+                                                                        </tr>
+                                                                        {% endif %}
+                                                                        {% endif %}
+                                                                    </tbody>
+                                                                </table>
+                                                                <hr style="background-color: #000000;">
+                                                                <table class="table table-borderless">
+                                                                    <tbody>
+                                                                        <tr >
+                                                                            <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                                            <th style="color: #000; ">:</th>
+                                                                            <th style="color: #000; text-align: right;">{{pbill.grandtotal}}</th>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div> 
+                                                        </div>
+                                                    </section>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- template3 -->
+                                    <div id="whatToPrint3" class="printTemplates template3"  style="display: none;" >
+                                        <div class="my-5 page"  size="A4" >
+                                            <div class="" id="printdiv3">
+                                                <div class="row">
+                                                    <div class="col-sm-12" style="background-image: linear-gradient(#68020F,#68484c); color: white;">
+                                                        <br>
+                                                        <p style="font-size: 4vh; text-align: center;">PURCHASE BILL</p>
+                                                        <p style=" text-align: center;"> 
+                                                            {{pbill.company.company_name}} <br>
+                                                            {{pbill.company.address}} <br>
+                                                            {{pbill.company.city}},
+                                                            {{pbill.company.state}}<br>
+                                                            {{pbill.company.cemail}}
+                                                            <br>
+                                                        </p>
+                                                    </div>
+                                                    <div class="row col-12">
+                                                        <div class="col-md-1"></div>
+                                                        <div class="col-5">
+                                                            <br><br><br>
+                                                            <p style="color:black;"> <span style=" font-weight: bold;">To: </span><br>
+                                                            {{pbill.party.party_name}}<br>
+                                                            {{pbill.party.address|linebreaksbr }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-md-2"></div>
+                                                        <div class="col-4">
+                                                            <br><br><br>
+                                                            <table class="table table-borderless">
+                                                                <tbody>
+                                                                    <tr >
+                                                                        <td style="color: #000; font-weight: bold;">Bill No : </td>
+                                                                        <td style="color: #000; text-align: left;">{{ pbill.billno }}</td>
+                                                                    </tr>
+                                                                    <tr >
+                                                                        <td style="color: #000; font-weight: bold;">Bill Date : </td>
+                                                                        <td style="color: #000; text-align: left;">{{pbill.billdate | date:'d-m-Y'}}<td>
+                                                                    </tr>
+                                                                </tbody>
+                            
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-1"></div>
+                                                    <div class="col-md-10"><br>
+                                                        <table class=" table table-hover table-bordered border-dark" id="table1">
+                                                            <thead style="background-color:#68020F;">
+                                                                <tr>
+                                                                    <td style="text-align: center; font-weight:bold; color:rgb(255, 255, 255) ">Items</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254) ">HSN</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 251, 251) ">Quantity</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 255, 255)">Price</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254)">VAT</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 255, 255)">Discount</td>
+                                                                    <td style="font-weight:bold; color:rgb(255, 254, 254)">Total</td>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {% for i in pitm %}
+                                                                    <tr>
+                                                                        <td style="color:black; text-align: center;">{{i.product.itm_name}}</td>
+                                                                        <td style="color:black">{{i.product.itm_hsn}}</td >
+                                                                        <td style="color:black">{{i.qty}}</td>
+                                                                        <td style="color:black">{{i.product.itm_purchase_price}}</td>
+                                                                        <td style="color:black">{{i.VAT}}</td>
+                                                                        <td style="color:black">{{i.discount}} </td>
+                                                                        <td style="color:black">{{i.total}}</td>
+                                                                    </tr>
+                                                                {% endfor %} 
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div> 
+                                                <section class="balance-info">
+                                                    <div class="row">
+                                                        <div class="col-md-7"></div>
+                                                        <div class="col-md-4">
+                                                            <br>
+                                                            <table class="table table-borderless">
+                                                                <tbody>
+                                                                    <tr >
+                                                                        <td style="color: #000;">Sub Total</td>
+                                                                        <td style="color: #000;">:</td>
+                                                                        <td class="text-right" style="color: #000;">{{pbill.subtotal}}</td>
+                                                                    </tr>
+                                                                    
+                                                              
+                                                                    <tr >
+                                                                        <td style="color: #000;">VAT Amount</td>
+                                                                        <td style="color: #000;">:</td>
+                                                                        <td class="text-right" style="color: #000;">{{pbill.taxamount}}</td>
+                                                                    </tr>
+                                                                    {% if pbill.adjust != '0.00' %}
+                                                                    {% if pbill.adjust != '0' %}
+                                                                    <tr >
+                                                                        <td style="color: #000;">Adjustment</td>
+                                                                        <td style="color: #000;">:</td>
+                                                                        <td class="text-right" style="color: #000;">{{pbill.adjust}}</td>
+                                                                    </tr>
+                                                                    {% endif %}
+                                                                    {% endif %}
+                                                                </tbody>
+                                                            </table>
+                                                            <hr style="background-color: #000000;">
+                                                            <table class="table table-borderless">
+                                                                <tbody>
+                                                                    <tr >
+                                                                        <th style="color: #000;">Grand Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                                                                        <th style="color: #000; ">:</th>
+                                                                        <th style="color: #000; text-align: right;">{{pbill.grandtotal}}</th>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </section> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 30px; margin-top: 20px;">
+                                    <div class="col d-flex justify-content-center">
+                                        <button id="btn1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn button_border me-2 active">1</button>
+                                        <button id="btn2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn button_border me-2">2</button>
+                                        <button id="btn3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn button_border me-2">3</button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+                            <div id="slipdiv" style="border-radius: 2vh; display: none;">
+                                <div class="my-5 page" size="A4">
+                                    <div class="row" style="margin-top: 20%;" id="printslip">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6 ml-3">
+                                            <div class="card bg-white" style="border: 1px dotted black; box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);">
+                                                <div class="mt-2" style="text-align: center;">
+                                                    <div class="text-center" style="font-size: 3vh; color: black;">
+                                                        <b>{{pbill.company.company_name}} </b>
+                                                    </div>
+                                                    <span style="font-size: x-small; color: black;">
+                                                        {{ pbill.company.address }} <br>
+                                                        {{pbill.company.city}},
+                                                        {{pbill.company.state}}
+                                                        {{pbill.company.pincode}} <br>
+                                                        {{ pbill.company.user.email }} <br>
+                                                        {{ pbill.company.contact }} 
+                                                    </span>
+                                                </div>
+                                                <div class="ml-4 mt-2" style="color: black;">
+                                                    <div class="row">
+                                                        <div class="col-md-6 text-left">Bill No:</div>
+                                                        <div class="col-md-5 text-right">{{pbill.billno}}</div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 text-left">Customer Name:</div>
+                                                        <div class="col-md-5 text-right">{{pbill.party.party_name}}</div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 text-left">Bill Date :</div>
+                                                        <div class="col-md-5 text-right">{{pbill.billdate | date:'d-m-Y'}}</div>
+                                                    </div>
+                                                </div>
+                                                <div><br>
+                                                    <div class="equal-length-container" style="color: black; font-weight: bold;">
+                                                        <div class="equal-length-item" style=" text-align: center;">
+                                                            Item
+                                                            <hr style="border-bottom: 1px solid black; margin-top:1vh; width:95%">
+                                                        </div>
+                                                        <div class="equal-length-item ml-2"  style=" text-align:center;">
+                                                            HSN
+                                                            <hr style="border-bottom: 1px solid black; margin-top:1vh; width:63%; margin-left: 10px;">
+                                                        </div>
+                                                        <div class="equal-length-item"  style=" text-align: center; ">
+                                                            Qty
+                                                            <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%;  margin-left: 10px;">
+                                                        </div>
+                                                        <div class="equal-length-item"  style=" text-align: center; ">
+                                                            Price
+                                                            <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
+                                                        </div>
+                                                        <div class="equal-length-item"  style=" text-align: center; ">
+                                                            VAT
+                                                            <hr style="border-bottom: 1px solid black; margin-top:1vh; width:60%;  margin-left: 10px;">
+                                                        </div>
+                                                        <div class="equal-length-item" style=" text-align: center; ">
+                                                            Total
+                                                            <hr style="border-bottom: 1px solid black; margin-top:1vh; width:65%;  margin-left: 10px;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    {% for i in pitm %}
+                                                    <div class="equal-length-container" style="color: black; font-size: small; word-wrap: break-word; margin-bottom: 1vh;">
+                                                        <div class="equal-length-item"  style="text-align: center; margin-left: 2px;">
+                                                            {{i.product.itm_name}}
+                                                        </div>
+                                                        <div class="equal-length-item" style="text-align: right;">
+                                                            {{i.product.itm_hsn}}
+                                                        </div>
+                                                        <div class="equal-length-item" style="text-align: center;">
+                                                            {{i.qty}}
+                                                        </div>
+                                                        <div class="equal-length-item" style="text-align: center; ">
+                                                            {{i.product.itm_purchase_price}}
+                                                        </div>
+                                                        <div class="equal-length-item" id="tax{{ forloop.counter }}" style="text-align: center;">
+                                                            {{i.VAT}}
+                                                        </div>
+                                                        
+                                                        <div class="equal-length-item" style="text-align: center; ">
+                                                            {{i.total}}
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                                <div><br>
+                                                    {% if dis != 0 %}
+                                                    <div class="row ml-1">
+                                                        <div class="col-md-5 text-left" style=" color: black;">
+                                                            Discount
+                                                        </div>
+                                                        <div class="col-md-6 text-right ml-2" style="color: black;">
+                                                            {{ dis }}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    <div class="row ml-1">
+                                                        <div class="col-md-5 text-left" style=" color: black;">
+                                                            Subtotal
+                                                        </div>
+                                                        <div class="col-md-6 text-right ml-2" style="color: black;">
+                                                            {{ pbill.subtotal }}
+                                                        </div>
+                                                    </div>
+
+                                                    {% if pbill.adjust != '0.00' %}
+                                                    {% if pbill.adjust != '0' %}
+                                                    <div class="row ml-1">
+                                                        <div class="col-md-5 text-left" style=" color: black;">
+                                                            Adjust
+                                                        </div>
+                                                        <div class="col-md-6 text-right ml-2" style="color: black;">
+                                                            {{ pbill.adjust }}
+                                                        </div>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% endif %}
+                                                    <hr class="ml-2 mr-2" style="color: black; border-bottom: 1px solid black; ">
+                                                </div>
+
+                                                <div class="mb-2">
+                                                    <div class="row">
+                                                        <div class="col-md-5 text-left ml-2" style=" font-size: large; color: black; font-weight: bold;">
+                                                            Total
+                                                        </div>
+                                                        <div class="col-md-6 text-right ml-2" style="font-size: large; color: black; font-weight: bold;">
+                                                            {{ pbill.grandtotal }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="ml-2 mt-2">
+                                                    <p>
+                                                        Created by : {{pbill.staff.first_name}}  {{pbill.staff.last_name}} <br>
+                                                        Printed by {{staff.first_name}}  {{staff.last_name}} On <span id="datetimedisplay"></span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div> 
+       
+        
+    </div>
+    
+</div>
+<!-- Add the email modal -->
+<div id="emailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEmailModal()">&times;</span>
+        <div class="modal-header" style="background: rgb(242, 242, 243);">
+            <h5 class="m-3 text-uppercase" id="shareBillEmailLabel">Share  vatbill Via Email</h5>
+           
+          </div>
+          <div class="modal-body" style="background: rgb(239, 242, 244);">
+            <div class="card p-3 m-3">
+              <form action="{% url 'sharepdftomail' pbill.id %}" method="post" class="needs-validation"
+                id="share_to_email_form" autocomplete="off">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label for="emailIds">Email IDs</label>
+                  <textarea class="form-control text-dark" name="email_ids" id="emailIds" rows="5"
+                    placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                </div>
+                <div class="form-group mt-2">
+                  <label for="item_unitname">Message(optional)</label>
+                  <textarea name="email_message" id="email_message" class="text-dark form-control" cols=""
+                    rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+              <input type="submit" id="share_with_email"
+                class="submitShareEmailBtn rounded-pill text-grey w-50 my-4 mx-3" value="SEND MAIL">
+            </div>
+          </div>
+
+        </div>
+    </div>
+</div>
+          
+<script>
+    
+    // Function to open the email modal
+    function toggleEmailModal() {
+        document.getElementById("emailModal").style.display = "block";
+    }
+
+    // Function to close the email modal
+    function closeEmailModal() {
+        document.getElementById("emailModal").style.display = "none";
+    }
+
+    // Handle the submission of the email form
+    $(document).ready(function () {
+    $('#share_with_email').on('click', function () {
+      var emailsInput = document.getElementById('emailIds');
+      var emailsString = emailsInput.value.trim();
+
+      var emails = emailsString.split(',').map(function (email) {
+        return email.trim();
+      });
+
+      var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+      var invalidEmails = []
+      if (emailsString == "") {
+        alert('Enter valid email addresses..')
+      }
+      else {
+        for (var i = 0; i < emails.length; i++) {
+          var currentEmail = emails[i];
+
+          if (currentEmail != "" && !emailRegex.test(currentEmail)) {
+            console.log(currentEmail + ' is invalid!');
+            invalidEmails.push(currentEmail)
+          }
+        }
+
+        if (invalidEmails.length > 0) {
+          alert('Invalid emails..Please check!\n' + invalidEmails)
+          // alert(invalidEmails)
+        } else {
+          $('#share_to_email_form').submit();
+        }
+      }
+    })
+  });
+   
+</script>
+<script>
+    function toggleDropdown() {
+        var dropdownContent = document.getElementById("myDropdown");
+        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
+    }
+</script>
+
+<script>
+    function updateDateTime() {
+        var currentDate = new Date();
+        var day = currentDate.getDate();
+        var month = currentDate.getMonth() + 1;
+        var year = currentDate.getFullYear();
+        var hours = currentDate.getHours();
+        var minutes = currentDate.getMinutes();
+        var seconds = currentDate.getSeconds();
+        var formattedDay = (day < 10) ? `0${day}` : day;
+        var formattedMonth = (month < 10) ? `0${month}` : month;
+        var formattedHours = (hours < 10) ? `0${hours}` : hours;
+        var formattedMinutes = (minutes < 10) ? `0${minutes}` : minutes;
+        var formattedSeconds = (seconds < 10) ? `0${seconds}` : seconds;
+        var formattedDateTime = `${formattedDay}/${formattedMonth}/${year} ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+        document.getElementById('datetimedisplay').textContent = formattedDateTime;
+    }
+
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+</script>
+
+<script>
+    l = parseInt('{{itm_len}}')
+    place = '{{pbill.supplyplace}}'
+    for (var i=1; i<=l; i++){
+        val =  document.getElementById('tax'+i).innerText
+        tax = val.split('[')[1];
+        tax = tax.split(']')[0]
+        if(place == 'State'){
+
+            document.getElementById('taxval'+i).innerText = 'GST' + tax;
+        }else{
+            document.getElementById('taxval'+i).innerText = 'IGST' + tax;
+        }
+    }
+</script>
+
+<script>
+    $(document).ready(function(){
+        $('#templates').css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
+        $('#slip a').removeClass('text-dark')
+        $('#templates a').addClass('text-dark')
+        $('#slip').css({'border-bottom': 'none'})
+        $('#templatediv').attr('hidden',false)
+        $('#slipdiv').attr('hidden',true)
+
+        $('#templates').on('click',function(){
+            $(this).css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
+            $('#slip a').removeClass('text-dark')
+            $('#templates a').addClass('text-dark')
+            $('#slip').css({'border-bottom': 'none'})
+            $('#templatediv').attr('hidden',false)
+            $('#slipdiv').attr('hidden',true)
+            document.getElementById('slipdiv').style.display = 'none';
+        })
+    })
+
+    $(document).ready(function(){
+        $('#slip').on('click',function(){
+        $('#slip').css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
+        $('#templates a').removeClass('text-dark')
+        $('#slip a').addClass('text-dark')
+        $('#templates').css({'border-bottom': 'none'})
+        $('#templatediv').attr('hidden',true)
+        $('#slipdiv').attr('hidden',false)
+        document.getElementById('slipdiv').style.display = 'block';
+        })
+    })
+
+    function toggleTemplate(templateId,buttonId){
+            $('.printTemplates').css('display','none');
+            $('#'+templateId).css('display','block');
+            $('.templateToggleButtons').removeClass('active');
+            $('#'+buttonId).addClass('active');
+            selectedTemplateId = templateId;
+            console.log("Selected Template ID:", selectedTemplateId);
+            scrollToTop();
+       
+            
+        }
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ($) {
+        $(document).on('click', '#pdflink', function (event) {
+            event.preventDefault();
+            print1 = document.getElementById('whatToPrint1')
+            print2 = document.getElementById('whatToPrint2')
+            print3 = document.getElementById('whatToPrint3')
+            print4 = document.getElementById('slipdiv')
+
+            if (print1.style.display !== 'none'){
+                var element = document.getElementById('printdiv1') 
+            }
+
+            if (print2.style.display !== 'none'){
+                var element = document.getElementById('printdiv2') 
+            }
+
+            if (print3.style.display !== 'none'){
+                var element = document.getElementById('printdiv3') 
+            }
+
+            if (print4.style.display !== 'none'){
+                var element = document.getElementById('printslip') 
+            }
+
+            var opt =
+            {
+                margin: 1,
+                filename: 'PurchaseBill_No'+ '{{pbill.billno}}' + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+    });
+</script>
+
+<script>
+    function printfun(){
+        print4 = document.getElementById('slipdiv')
+        if (print4.style.display !== 'none'){
+            var printContents = document.getElementById("slipdiv").innerHTML;
+        }else{
+            var printContents = document.getElementById("whatToPrint").innerHTML;
+        }
+        var $printerDiv = $('<div class="printContainer"></div>');
+        $printerDiv.html(printContents); 
+        $('body').append($printerDiv).addClass("printingContent"); 
+        window.print(); 
+        $printerDiv.remove();
+        $('body').removeClass("printingContent");
+    }
+    function shareOnWhatsApp() {
+    var url = window.location.href;
+    var text = url;
+    text = encodeURIComponent(text);
+    var whatsappUrl = "whatsapp://send?text=" + text;
+    window.location.href = whatsappUrl;
+  }
+  
+
+</script>
+
+{% endblock %}
+    

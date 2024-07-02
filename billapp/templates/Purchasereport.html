@@ -1,0 +1,866 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.6"
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+    crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.0/xlsx.full.min.js"></script>
+
+
+<style>
+ 
+    .bs{
+        box-shadow: 2px 2px 10px 3px rgba(0, 0, 0, 0.397);
+    }
+
+    .bs_sm{
+        box-shadow: inset 2px 2px 5px 3px rgba(0, 0, 0, 0.199);
+    }
+
+    .paiddiv{
+        color: black;
+        height: 10vh;
+        width: 20vh;
+        padding-left: 2vh;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        margin-left: 7vh;
+        border-radius: 8px;
+        background-color: #FFADB0;
+    }
+
+    .unpaiddiv{
+        color: black;
+        height: 10vh;
+        width: 20vh;
+        padding-left: 2vh;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        margin-left: 7vh;
+        border-radius: 8px;
+        background-color: #FFADB0;
+    }
+
+    .totaldiv{
+        color: black;
+        height: 10vh;
+        width: 20vh;
+        padding-left: 2vh;
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        margin-left: 7vh;
+        border-radius: 8px;
+        background-color:#FFADB0;
+    }
+
+    #billtable tbody{
+        cursor: pointer;
+    }
+
+    #emptyMessage {
+        display: none;
+        font-size: x-large;
+        font-weight: bold;
+        color: red;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        border-radius: 5px;
+        padding: 10px;
+        z-index: 1;
+        width: 15%;
+    }
+
+    .dropdown-content label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .dropdown-content input {
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+
+    .tplus{
+        margin-top: 3vh;
+        margin-left: 5vh;
+        margin-right: -2vh;
+    }
+
+    .tequal{
+        margin-top: 3vh;
+        margin-left: 5vh;
+        margin-right: -2vh;
+    }
+
+    .tg{
+        color: rgb(0, 140, 7);
+    }
+
+    .tr{
+        color: #68020F;
+    }
+
+    .tj{
+        color:#E4A11B;
+    }
+
+    .th{
+        color: black;
+    }
+
+    @media print{
+        body{
+            visibility: hidden !important; /* hide everything in body when in print mode*/
+        }
+
+        .printContainer {
+            visibility: visible !important; /* Override the rule above to only show the printables*/
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: large;
+        } 
+
+        #calcdiv{
+            visibility: visible;
+            margin-top: -30vh;
+            margin-left: -9vh;
+            margin-bottom: 30vh;
+        }
+
+        #billtable{
+            margin-top: 20vh;
+            margin-bottom: 20vh;
+        }
+
+        #billtable th{
+            font-size: medium;
+        }
+
+        .extra{
+            display: none;
+        }
+    }
+    
+    ::-webkit-scrollbar{
+        display: none
+    }
+</style>
+
+
+
+    
+<div class="body-wrapper">
+    <br><br><br
+    
+    <p></p>
+    <div class="row ps-3 pe-3 m-0" >
+        <div class="col-sm-12 ps-2 pe-3">
+            <div class="row pt-0 m-0">
+                <div class="card p-0 bg-light bs">
+                 <br>
+                    <div class="row m-0 p-0 pt-3" >
+                        <div class="col-sm-12 col-lg-12">
+                            <div class="d-flex justify-content-between">
+                                <div style="margin-left: 20px;">
+
+
+                                    <div class="d-flex justify-content-space-around" style="margin-left: 10px;">
+                                        <div style="flex: 1;">
+                                            <label for="fromDate" style="margin-right: 10px;">From Date</label>
+                                            <input type="date" id="fromDate" class="form-control" name="fromDate" onchange="filterDates(this.value)">
+                                        </div>
+                                        &nbsp&nbsp&nbsp; <!-- Non-breaking spaces -->
+                                        <div style="flex: 1;">
+                                            <label for="toDate" style="margin-left: 10px;">To Date</label>
+                                            <input type="date" id="toDate" class="form-control" name="toDate"  onchange="filterDates()">
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    <script>
+                                        function formatDate(date) {
+                                            // Extract day, month, and year components
+                                            var day = date.getDate().toString().padStart(2, '0');
+                                            var month = (date.getMonth() + 1).toString().padStart(2, '0');
+                                            var year = date.getFullYear();
+                                            // Construct formatted date string
+                                            return day + '-' + month + '-' + year;
+                                        }
+                                    
+                                        function filterDates() {
+                                            var fromDate = document.getElementById("fromDate").value;
+                                            var toDate = document.getElementById("toDate").value;
+                                    
+                                            // Parse from and to dates
+                                            var fromDateObj = new Date(fromDate);
+                                            var toDateObj = new Date(toDate);
+                                    
+                                            // Format dates
+                                            var formattedFromDate = formatDate(fromDateObj);
+                                            var formattedToDate = formatDate(toDateObj);
+                                    
+                                            // Display the selected date range above the table
+                                            var dateDisplay = document.getElementById("dateDisplay");
+                                            dateDisplay.textContent = "From: " + formattedFromDate + " To: " + formattedToDate;
+                                    
+                                            // Rest of the filtering logic remains the same as the first JavaScript code...
+                                            var selectedDate = new Date(fromDate);
+                                            selectedDate.setDate(selectedDate.getDate() - 1);
+                                            var table = document.getElementById("billtable");
+                                            var rows = table.getElementsByTagName("tr");
+                                            var emptyMessage = document.getElementById('emptyMessage');
+                                            var isEmpty = true;
+                                            for (var i = 1; i < rows.length; i++) {
+                                                var currentDate = rows[i].getElementsByTagName("td")[0].innerText;
+                                                var date = new Date(currentDate.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2/$1/$3"));
+                                                if ((fromDate && date >= selectedDate) || !fromDate) {
+                                                    if ((toDate && date <= new Date(toDate)) || !toDate) {
+                                                        rows[i].style.display = "table-row";
+                                                        isEmpty = false;
+                                                    } else {
+                                                        rows[i].style.display = "none";
+                                                    }
+                                                } else {
+                                                    rows[i].style.display = "none";
+                                                }
+                                            }
+                                            emptyMessage.style.display = isEmpty ? 'block' : 'none';
+                                        }
+                                    </script>
+                                    
+
+
+
+
+
+                                </div>
+                                <div style="margin-right: 4vh;">
+
+                                    <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="printfunction()"
+                                        style="color:  #68020F;">
+                                        <i class="fas fa-print" style="font-size:175%;"></i><br>PRINT
+                                    </button>
+
+                                    <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="ExportToExcel()"
+                                        style="color:  #68020F;">
+                                        <i class="fas fa-file-excel" style="font-size:175%;"></i><br>EXCEL
+                                    </button>                                   
+
+                                    <button class="btn p-0 ps-2 pe-2 ms-2" type="button" onclick="generatePDF()"
+                                        style="color:  #68020F;">
+                                        <i class="fas fa-file-pdf" style="font-size:175%;"></i><br>PDF
+                                    </button>
+
+                                    <a href="{% url 'Purchasereport_graph'  %}">
+                                    <button class="btn p-0 ps-2 pe-2 ms-2" type="button" 
+                                        style="color:  #68020F;">
+                                        <i class="fas fa-chart-line" style="font-size:175%;"></i><br>GRAPH
+                                    </button>
+                                    </a>
+
+                                    <a class="text-dark" data-toggle="dropdown">
+                                        <button class="btn p-0 ps-2 pe-2 ms-2" type="button" style="color:  #68020F;" title="Share"><i class="fa fa-share" aria-hidden="true" style="font-size:175%;"></i> <br> SHARE</button>
+                                    </a>
+                                    <div class="dropdown-menu ">
+                                        <a class="dropdown-item" data-target="#shareBillEmail"
+                                            data-toggle="modal">GMAIL</a>
+                                        <!-- <a class="dropdown-item" href="javascript:void(0);"
+                                            onclick="shareOnWhatsApp()">WhatsApp</a> -->
+                    
+                                        <ul class="dropdown-item" aria-labelledby="navbarDropdown">
+                                            <li>{% post_to_whatsapp object_or_url "<span style='color: black;'>WhatsApp</span>" %}</li>
+                                        </ul> 
+                                    </div>                                                                       
+                                </div>
+                            </div>
+                        </div>
+
+
+                    <br><br>
+                    <h2><ul style=" text-align:center;text-transform: uppercase;">{{cmp.company_name}}</ul></h2>
+                    <h3><ul style=" text-align:center;">Purchase Report</ul></h3>
+                    <div id="dateDisplay" style="text-align:center;color:black;"></div>
+                    
+
+                    <div class="row">
+                        <div class="col-md-12" style="margin-left: 4vh;">
+                            <div class="mt-3" style=" width: 97%;" id="tablediv">
+                                
+                                <table class="table table-bordered table-dangerbtn-danger table-striped tb table-responsive w-100" id="billtable"  style="text-align: center;">
+                                    <thead style="background: #68020F; color: white;">
+                                        <tr class="fs-2 tb">
+
+                                            <th>
+                                                DATE 
+                                                <a class="extra text-black" onclick="toggleDropdown(0)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent0">
+                                                    <label for="filterInput0" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="date" id="filterInput0"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(0)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(0)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                BILL NO 
+                                                <a class="extra text-black" onclick="toggleDropdown(1)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent1">
+                                                    <label for="filterInput1" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput1"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(1)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(1)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                PARTY NAME 
+                                                <a class="extra text-black" onclick="toggleDropdown(2)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent2">
+                                                    <label for="filterInput2" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput2"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(2)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(2)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                TYPE 
+                                                <a class="extra text-black" onclick="toggleDropdown(3)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent3">
+                                                    <label for="filterInput3" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput3"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(3)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(3)">Apply</a>
+                                                </div>
+                                            </th>
+
+                                            <th>
+                                                AMOUNT
+                                                <a class="extra text-black" onclick="toggleDropdown(4)">&nbsp;<i style="color: white;" class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent4">
+                                                    <label for="filterInput4" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput4"  />
+                                                    <a class="btn btn-" style="background: #68020F; color: white;" onclick="cleardropdown(4)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-" style="background: #68020F; color: white;" onclick="filterTable(4)">Apply</a>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <!-- <tbody>
+                                        {% for purchase in purchases %}
+                                        <tr>
+                                            <td style="color: black;">{{ purchase.billdate|date:'d-m-Y' }}</td>
+                                            <td style="color: black;">{{ purchase.billno }}</td>
+                                            <td style="color: black;">{{ purchase.party.party_name }}</td>
+                                            <td style="color: black;">Bill</td>
+                                            <td style="color: black;">{{ purchase.grandtotal }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% for debit_note in debit %}
+                                        <tr>
+                                            <td style="color: black;">{{ debit_note.created_at|date:'d-m-Y' }}</td>
+                                            <td style="color: black;">{{ debit_note.bill }}</td>
+                                            <td style="color: black;">{{ debit_note.party.party_name }}</td>
+                                            <td style="color: black;">Debit Note</td>
+                                            <td style="color: black;">{{ debit_note.grandtotal }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody> -->
+
+
+                                    <tbody>
+                                        {% for purchase in purchases %}
+                                        <tr>
+                                            <td>{{ purchase.billdate|date:'d-m-Y' }}</td>
+                                            <td>{{ purchase.billno }}</td>
+                                            <td>{{ purchase.party.party_name }}</td>
+                                            <td>Bill</td>
+                                            <td>{{ purchase.grandtotal }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% for debit_note in debit %}
+                                        <tr>
+                                            <td>{{ debit_note.created_at|date:'d-m-Y' }}</td>
+                                            <td>{{ debit_note.returnno }}</td>
+                                            <td>{{ debit_note.party.party_name }}</td>
+                                            <td>Debit Note</td>
+                                            <td>{{ debit_note.grandtotal }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% if purchases %}
+                                        {% if total_debit_amount %}
+                                        <tr>
+                                           <td colspan="4" style="text-align: right; font-weight: bold;">Total Purchase Amount:</td>
+                                           <td>{{ total_amount_after_debit }}</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                           <td colspan="4" style="text-align: right; font-weight: bold;">Total Purchase Amount:</td>
+                                           <td>{{ total_purchase_amount }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% else %}
+                                        <tr>
+                                           <td colspan="5">No purchases found.</td>
+                                        </tr>
+                                        {% endif %}
+ 
+                                    </tbody>
+
+
+                                </table>
+
+                                <p id="emptyMessage" style="text-align: center;">
+                                    <br><br><br>
+                                    
+                                </p>
+                                <table id="excelbilltable" hidden>
+                                    <thead >
+                                        <tr class="fs-2 tb" >
+                                            <th> DATE </th>
+                                            <th> BILL NO </th>
+                                            <th> PARTY NAME </th>
+                                            <th> TYPE </th>
+                                            <th> AMOUNT </th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for purchase in purchases %}
+                                        <tr>
+                                            <td>{{purchase.billdate|date:'d-m-Y'}}</td>
+                                            <td>{{purchase.billno}}</td>
+                                            <td>{{purchase.party.party_name}}</td>
+                                            <td>Bill</td>
+                                            <td>{{purchase.grandtotal}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% for debit_note in debit %}
+                                        <tr>
+                                            <td style="color: black;">{{ debit_note.created_at|date:'d-m-Y' }}</td>
+                                            <td style="color: black;">{{ debit_note.bill }}</td>
+                                            <td style="color: black;">{{ debit_note.party.party_name }}</td>
+                                            <td style="color: black;">Debit Note</td>
+                                            <td style="color: black;">{{ debit_note.grandtotal }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>                        
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="shareBillEmail">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="background: #68020F; border-radius: 20px;">
+            <div class="modal-header" style="background: #68020F;">
+                <h5 class="m-3 text-uppercase text-light" id="shareBillEmailLabel">Share Gstr9 Via Email</h5>
+                <button type="button" class="btn btn-close btn-outline-light" data-dismiss="modal" aria-label="Close" ></button>
+            </div>
+            <div class="modal-body" style="background: #68020F;">
+                <div class="card p-3 m-3" >
+                    <form action="{% url 'sharePurchaseReportsToEmail'  %}" method="post" class="needs-validation"
+                        id="share_to_email_form" autocomplete="off" >
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="emailIds">Email IDs</label>
+                            <textarea  class="form-control text-dark" name="email_ids" id="emailIds" rows="3"
+                                placeholder="Multiple emails can be added by separating with a comma(,)."
+                                required></textarea>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="item_unitname">Message(optional)</label>
+                            <textarea name="email_message" id="email_message" class="text-dark form-control" cols=""
+                                rows="3" placeholder="This message will be sent along with Bill details."></textarea>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffff;">
+                            <button style="background: #68020F; color: white;" type="submit" id="share_with_email"
+                                class=" btn btn-outline-dark  submitShareEmailBtn " value="SEND MAIL">SEND MAIL</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+  
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+
+
+
+    <script>
+        $(document).ready(function () {
+            $('#share_with_email').on('click', function () {
+                var emailsInput = document.getElementById('emailIds');
+                var emailsString = emailsInput.value.trim();
+    
+                var emails = emailsString.split(',').map(function (email) {
+                    return email.trim();
+                });
+    
+                var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+    
+                var invalidEmails = []
+                if (emailsString == "") {
+                    alert('Enter valid email addresses..')
+                }
+                else {
+                    for (var i = 0; i < emails.length; i++) {
+                        var currentEmail = emails[i];
+    
+                        if (currentEmail != "" && !emailRegex.test(currentEmail)) {
+                            console.log(currentEmail + ' is invalid!');
+                            invalidEmails.push(currentEmail)
+                        }
+                    }
+    
+                    if (invalidEmails.length > 0) {
+                        alert('Invalid emails..Please check!\n' + invalidEmails)
+                        // alert(invalidEmails)
+                    } else {
+                        $('#share_to_email_form').submit();
+                    }
+                }
+            })
+        });
+    </script>
+
+
+    <script>
+        function toggleDropdown(dotsElement) {
+            var dropdownMenu = dotsElement.nextElementSibling;
+            if (dropdownMenu.style.display === 'block' || dropdownMenu.style.display === '') {
+                dropdownMenu.style.display = 'none';
+            } else {
+                dropdownMenu.style.display = 'block';
+
+                // Close the dropdown if the user clicks outside of it
+                window.addEventListener('click', function (event) {
+                    if (event.target !== dotsElement && event.target !== dropdownMenu) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                });
+            }
+
+            // Prevent the click event from propagating to the window
+            event.stopPropagation();
+        }
+
+        function shareOnWhatsApp() {
+        var url = window.location.href;
+        var text = url;
+        text = encodeURIComponent(text);
+        var whatsappUrl = "whatsapp://send?text=" + text;
+        window.location.href = whatsappUrl;
+    }
+    </script>
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
+ 
+    <script>
+        document.getElementById('fromDate').addEventListener('change', updateMinDate);
+        function updateMinDate() {
+            var selectedDate = document.getElementById('fromDate').value;
+            document.getElementById('toDate').min = selectedDate;
+        }
+    </script>
+   
+<script>
+    var table = document.getElementById('billtable');
+    var rows = table.getElementsByTagName('tr');
+    for (var i = 1; i < rows.length; i++) {
+        var pid = rows[i].getElementsByTagName('td')[1].innerText;
+        findhistory(i,pid)            
+    }
+    function findhistory( rowid,pid){
+        $.ajax({
+            type : 'POST',
+            url: "{% url 'billhistory' %}",
+            data: { 
+                id: pid ,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(data){
+                rows[rowid].getElementsByTagName('td')[6].innerText=data.action;
+                rows[rowid].getElementsByTagName('td')[7].innerText=data.name;
+                if(data.action== 'Created'){
+                    rows[rowid].getElementsByTagName('td')[6].style.color = 'Red'
+                }else{
+                    rows[rowid].getElementsByTagName('td')[6].style.color = '#154c79'
+                }
+            }
+        });
+    }
+</script>
+
+
+
+<script>
+    function printfunction(){
+        var print4 = document.getElementById('tablediv');
+        var printContents = "";
+
+        if (print4.style.display !== 'none') {
+            printContents = print4.innerHTML;
+        } else {
+            printContents = document.getElementById("whatToPrint").innerHTML;
+        }
+
+        // Extracting fromDate and toDate from the table data
+        var tableRows = document.querySelectorAll("#tablediv table tr");
+        var fromDate = tableRows[1].cells[0].textContent; // Assuming the first cell of the second row contains the fromDate
+        var lastRowIndex = tableRows.length - 1;
+        var toDate = tableRows[lastRowIndex].cells[0].textContent; // Assuming the first cell of the last row contains the toDate
+
+        // Append fromDate and toDate to printContents
+        printContents += "<br>From: " + fromDate + " To: " + toDate;
+
+        var $printerDiv = $('<div class="printContainer" id=printContainer></div>');
+        $printerDiv.html(printContents); 
+        $('body').append($printerDiv).addClass("printingContent"); 
+
+        var h1Element = document.createElement("h1");
+        var companyName = "<br><br>{{cmp.company_name}}"; 
+        var currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        h1Element.innerHTML = "<b>" + companyName + "</b>" + "<br> Purchase Report <br>" + 
+                           "From: " + fromDate + " To: " + toDate;
+        h1Element.style.textAlign = "center";
+        h1Element.style.marginBottom = "5px";
+        var head = document.getElementById("printContainer");
+        head.insertBefore(h1Element, head.firstChild);
+        window.print();
+        $printerDiv.remove();
+        $('body').removeClass("printingContent");
+    }
+</script>
+
+
+
+
+
+
+
+<script>
+    calculatetotal()
+
+    function calculatetotal(){
+        var table = document.getElementById('billtable');
+        var rows = table.getElementsByTagName('tr');
+        tpaid = 0;
+        tunpaid = 0;
+        ttotal = 0; 
+        for (var i = 1; i < rows.length; i++) {
+            if(rows[i].style.display !='none'){
+                var pcells = rows[i].getElementsByTagName('td')[9];
+                var ptextValue = pcells.textContent || pcells.innerText;
+                tpaid += parseFloat(ptextValue)
+
+                var ucells = rows[i].getElementsByTagName('td')[5];
+                var utextValue = ucells.textContent || ucells.innerText;
+                tunpaid += parseFloat(utextValue)
+
+                var tcells = rows[i].getElementsByTagName('td')[4];
+                var ttextValue = tcells.textContent || tcells.innerText;
+                ttotal += parseFloat(ttextValue)
+            }
+        }
+        document.getElementById('paidval').textContent = tpaid
+        document.getElementById('unpaidval').textContent = tunpaid
+        document.getElementById('totalval').textContent = ttotal
+    }
+</script>
+
+<script>
+    function cleardropdown(index){
+        if(index == 0){
+            document.getElementById('filterInput'+index).value = '';
+        }else{
+            document.getElementById('filterInput'+index).value = null;
+        }
+    }
+
+    function toggleDropdown(index) {
+        var dropdownContent = document.getElementById('dropdownContent' + index);
+        var isVisible = dropdownContent.style.display === 'block';
+        var allDropdowns = document.querySelectorAll('.dropdown-content');
+        allDropdowns.forEach(function (dropdown) {
+            dropdown.style.display = 'none';
+        });
+        dropdownContent.style.display = isVisible ? 'none' : 'block';
+    }
+
+    function filterTable(index) {
+        var input;
+        document.getElementById('dropdownContent' + index).style.display = 'none';
+        if (index === 0) {
+            input = document.getElementById('filterInput' + index).value;
+        } else {
+            input = document.getElementById('filterInput' + index).value.toUpperCase();
+        }
+        var table = document.getElementById('billtable');
+        var rows = table.getElementsByTagName('tr');
+        var emptyMessage = document.getElementById('emptyMessage');
+        var isEmpty = true;
+        for (var i = 1; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName('td');
+            var cell = cells[index];
+            if (cell) {
+                var textValue = cell.textContent || cell.innerText;
+                if (index === 0) {
+                    if (input==''){
+                        rows[i].style.display = 'table-row';
+                            isEmpty = false;
+                    }else{
+                        dateval  = textValue.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2-$1-$3");
+                        inputval  = input.replace(/(\d{2})-(\d{2})-(\d{2})/, "$2-$1-$3");
+                        const formattedDate = formatDateString(input);
+                        if (dateval === formattedDate) {
+                            rows[i].style.display = 'table-row';
+                            isEmpty = false;
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                } else {
+                    if (textValue.toUpperCase().includes(input)) {
+                        rows[i].style.display = 'table-row';
+                        isEmpty = false;
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+        emptyMessage.style.display = isEmpty ? 'block' : 'none';
+        calculatetotal()
+    }
+
+    function formatDateString(inputDate) {
+        const parsedDate = new Date(inputDate);
+        const day = parsedDate.getDate();
+        const month = parsedDate.getMonth() + 1;
+        const year = parsedDate.getFullYear();
+        const formattedDate = `${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}-${year}`;
+        return formattedDate;
+    }
+</script>
+
+
+<script>
+    jQuery(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+        });
+    });
+</script>
+
+
+<script>
+    document.getElementById("search_input").addEventListener("input", function() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search_input");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("billtable");
+        tr = table.getElementsByTagName("tr");
+        var emptyMessage = document.getElementById("emptyMessage");
+        var anyMatch = false;
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "table-row";
+            var found = false;
+            for (td of tr[i].getElementsByTagName("td")) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().includes(filter)) {
+                    found = true;
+                    anyMatch = true;
+                    break;
+                }
+            }
+            if (!found) {
+                tr[i].style.display = "none";
+            }
+        }
+        emptyMessage.style.display = anyMatch ? "none" : "block";
+        calculatetotal()
+    });
+</script>
+
+
+
+<script>
+    function ExportToExcel(){
+        const table = document.querySelector('#excelbilltable');
+        const ws = XLSX.utils.table_to_sheet(table);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'Purchasereport.xlsx');
+    }
+</script>
+
+<script>
+    // Function to generate PDF from the table
+    function generatePDF() {
+        var element = document.getElementById('billtable'); // Assuming 'credittable' is the ID of your table element
+        var filename = 'Purchasereport.pdf';
+        var opt = {
+            margin: 1,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+
+
+
+
+
+{% endblock content %}
