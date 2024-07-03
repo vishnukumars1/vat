@@ -243,7 +243,23 @@ def user_login(request):
     
 
 def dashboard(request):
-  context = {'usr':request.user}
+  cmp =  Company.objects.get(user = request.user)
+  current_time = datetime.datetime.now()
+  month = 12
+  total_invoice = Invoice.objects.filter(company_id=cmp).aggregate(total_invoice=Sum('subtotal'))['total_invoice'] or 0
+  
+  total_PurchaseBill = PurchaseBill.objects.filter(company_id=cmp).aggregate(total_PurchaseBill=Sum('grandtotal'))['total_PurchaseBill'] or 0
+
+  total_PurchaseBill_jan = PurchaseBill.objects.filter(company_id=cmp,billdate__month=month).aggregate(total_PurchaseBill_jan=Sum('grandtotal'))['total_PurchaseBill_jan'] or 0
+
+  
+  context = {
+     'usr':request.user,
+     'total_invoice':total_invoice, 
+     'total_PurchaseBill':total_PurchaseBill,
+     'total_PurchaseBill_jan':total_PurchaseBill_jan,
+     }
+  
   return render(request, 'dashboard.html', context)
 
 def logout(request):
@@ -2352,8 +2368,10 @@ def view_party(request,id):
 
   fparty = Party.objects.get(id=id)
   ftrans = Transactions_party.objects.filter(party = fparty)
+
+  total_trans = Transactions_party.objects.filter(party = fparty).aggregate(total_trans=Sum('balance'))['total_trans'] or 0
   
-  context = {'party':party, 'usr':request.user, 'fparty':fparty, 'ftrans':ftrans}
+  context = {'party':party, 'usr':request.user, 'fparty':fparty, 'ftrans':ftrans,'total_trans':total_trans}
   return render(request,'parties_list.html',context)
 
 

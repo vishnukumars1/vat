@@ -154,7 +154,7 @@ class Transactions_party(models.Model):
     trans_type = models.CharField(max_length=255)
     trans_number = models.CharField(max_length=255)
     trans_date = models.DateTimeField()
-    total=models.CharField(max_length=255)
+    total=models.DecimalField(max_digits=10,null=True,decimal_places=2)
     balance=models.CharField(max_length=255)    
     
     
@@ -182,7 +182,7 @@ class SalesInvoice(models.Model):
     subtotal = models.IntegerField(default=0, null=True)
     vat = models.CharField(max_length=100,default=0, null=True)
     adjustment = models.CharField(max_length=100,default=0)
-    grandtotal = models.FloatField(default=0, null=True)
+    grandtotal = models.FloatField(default=0, null=True)        
     total_taxamount = models.CharField(max_length=100,default=0)
     
 

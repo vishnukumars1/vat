@@ -119,6 +119,36 @@
         }
     }
 
+
+    .table-container {
+    overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Fixed layout for consistent column width */
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2; /* Header background color */
+    z-index: 1; /* Ensure header stays above content */
+}
+
+thead th {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd; /* Border style */
+}
+
+tbody td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd; /* Border style */
+}
+
 </style>
 
 {% if itm %}
@@ -169,7 +199,7 @@
                                                                 </li>
                                                                 <li>
                                                                     <a class="dropdown-item fw-bold tb" href="{% url 'load_item_edit' i.id %}" style="color:#68020F;">
-                                                                        <i class="material-icons" style="font-size: 15px; padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;colr:#68020F;">edit</i>Edit
+                                                                        <i class="material-icons" style="font-size: 15px; padding-inline-start: 0.1rem;padding-inline-end:0.7rem ;color:#68020F;">edit</i>Edit
                                                                     </a>
                                                                 </li>
                                                                 <li>
@@ -226,6 +256,9 @@
                                     <p class="tb fw-bolder fs-2" style="color:white;">PURCHASE PRICE  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; ₹{{ itm.itm_purchase_price }}</span></p>
                                     <p class="tb fw-bolder fs-2" style="color:white;">STOCK VALUE  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; ₹ <span id="stock_val"></span></span></p>
                                 </div>
+                                <div class="d-flex justify-content-between">
+                                    <p class="tb fw-bolder fs-2" style="color:white;">BALANCE QUANTITY  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; </span></p>
+                                </div>
                             </div>
                             <hr style="height: .5%;">
                             <div class="row m-0 p-0 pt-3">
@@ -260,9 +293,9 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-12 col-lg-6 pt-1"></div>
-                                <div class="mt-3" style="overflow: scroll;height: 31rem;">
+                                <div class="mt-3 table-container" style="overflow: scroll;height: 31rem;">
                                     <table id="itemtable" class="table table-bordered  tb table-responsive w-100">
-                                        <thead style="background: #68020F; color: white;">
+                                        <thead style="background: #68020F; color: white;;">
                                             <th>#</th>
                                             <th class="text-center fs-2">TYPE
                                                 <a class="extra text-white" onclick="toggleDropdown(1)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
