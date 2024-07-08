@@ -152,6 +152,7 @@
 
     #templates, #slip{
         cursor: pointer;
+        color: white !important;
     }
 
     #myDropdown {
@@ -182,6 +183,17 @@
             background-color: #68020F;
             color: white;
         }
+
+    .templateToggleButtons {
+    background-color: white;
+    border-color: #68020F;
+    color: #68020F;
+    }
+
+    .templateToggleButtons:hover {
+        background-color: #68020F;
+        color: white;
+    }
       
 </style>
 
@@ -208,7 +220,7 @@
                         <div class="card-body bg-light">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <h3 class="mb-3">PURCHASE  BILL DETAILS</h3> 
+                                    <h3 class="mb-3">PURCHASE DETAILS</h3> 
                                 </div>
                                 <div class="col-md-2"></div>
                                 <div class="col-md-6" style="text-align: right;">
@@ -227,12 +239,14 @@
                                 
                             </div>
                             </div>
+                           
+
                             <div class="row pb-0 mb-0 mt-1" style="margin-top:-2vh">
-                                <div id="templates" class="col text-center pb-2 pt-4"   >
-                                    <a class="fw-bolder fs-4" style="color: rgb(0, 0, 0); text-decoration: none; " >TEMPLATE</a>
+                                <div id="templates" class="col text-center pb-2 pt-3" style="background-color: #68020F;margin-left:15px;"  >
+                                    <a class="fw-bolder fs-4" style="text-decoration: none;color: white; " >TEMPLATE</a>
                                 </div>
-                                <div id="slip" class="col text-center pb-2 pt-3"  >
-                                    <a class="fw-bolder fs-4" style="color: rgb(0, 0, 0); text-decoration: none;" >BILL SLIP</a>
+                                <div id="slip" class="col text-center pb-2 pt-3" style="background-color: #68020F;margin-right:15px;" >
+                                    <a class="fw-bolder fs-4" style="color: white; text-decoration: none;" >BILL SLIP</a>
                                 </div>
                             </div>
                             
@@ -596,10 +610,10 @@
                                     </div>
                                 </div>
                                 <div class="row" style="padding-top: 30px; margin-top: 20px;">
-                                    <div class="col d-flex justify-content-center">
-                                        <button id="btn1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn button_border me-2 active">1</button>
-                                        <button id="btn2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn button_border me-2">2</button>
-                                        <button id="btn3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn button_border me-2">3</button>
+                                    <div class="col templateToggleSegment mt-3 mb-0 w-100 d-flex justify-content-center" id="toggleTemplate">
+                                        <button id="toggleTemplate1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn btn-outline-danger bg-gradientt btn-sm m-2 active templateToggleButtons">1</button>
+                                        <button id="toggleTemplate2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn btn-outline-danger bg-gradientt btn-sm m-2 templateToggleButtons">2</button>
+                                        <button id="toggleTemplate3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn btn-outline-danger bg-gradientt btn-sm m-2 templateToggleButtons">3</button>
                                     </div>
                                 </div>
                                 
@@ -892,16 +906,16 @@
 <script>
     $(document).ready(function(){
         $('#templates').css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
-        $('#slip a').removeClass('text-dark')
-        $('#templates a').addClass('text-dark')
+        $('#slip a').removeClass('text-light')
+        $('#templates a').addClass('text-light')
         $('#slip').css({'border-bottom': 'none'})
         $('#templatediv').attr('hidden',false)
         $('#slipdiv').attr('hidden',true)
 
         $('#templates').on('click',function(){
             $(this).css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
-            $('#slip a').removeClass('text-dark')
-            $('#templates a').addClass('text-dark')
+            $('#slip a').removeClass('text-light')
+            $('#templates a').addClass('text-light')
             $('#slip').css({'border-bottom': 'none'})
             $('#templatediv').attr('hidden',false)
             $('#slipdiv').attr('hidden',true)
@@ -912,8 +926,8 @@
     $(document).ready(function(){
         $('#slip').on('click',function(){
         $('#slip').css({'border-bottom': '3px solid rgba(0, 0, 0, 0.548)'})
-        $('#templates a').removeClass('text-dark')
-        $('#slip a').addClass('text-dark')
+        $('#templates a').removeClass('text-light')
+        $('#slip a').addClass('text-light')
         $('#templates').css({'border-bottom': 'none'})
         $('#templatediv').attr('hidden',true)
         $('#slipdiv').attr('hidden',false)

@@ -401,7 +401,8 @@ def item_list_first(request):
   
   if itm_list:
     itm = itm_list[0]
-    trans = ItemTransactions.objects.filter(item = itm)
+    trans = ItemTransactions.objects.filter(item = itm.id)
+    print(itm)
     context = {'itm_list':itm_list, 'usr':request.user, 'itm':itm, 'trans':trans}
   else:
     context = {'itm_list':itm_list, 'usr':request.user}
@@ -415,8 +416,9 @@ def item_list(request,id):
   
   itm = Item.objects.get(id=id)
   trans = ItemTransactions.objects.filter(item=itm.id)
+  bal_quantity = ItemTransactions.objects.filter(item=itm.id).last().trans_current_qty
   
-  context = {'itm_list':itm_list, 'usr':request.user, 'itm':itm, 'trans':trans}
+  context = {'itm_list':itm_list, 'usr':request.user, 'itm':itm, 'trans':trans,'bal_quantity':bal_quantity}
   return render(request,'item_list.html',context)  
 
 def load_item_create(request):
@@ -1044,7 +1046,8 @@ def createbill(request):
                   total=ele[6])
         purchasebillitem.save()
         print("purchasebillitem:", purchasebillitem)
-        
+    
+    itt = ItemTransactions.objects.filter(item=items.id).last().trans_current_qty
     # Add invoice details in items transactions
     transaction = ItemTransactions.objects.create(
         company=cmp,
@@ -1052,6 +1055,7 @@ def createbill(request):
         trans_type='Purchase',
         trans_date=pbill.billdate,
         trans_qty=qty,
+        trans_current_qty = itt + int(qty),
         trans_price=price,
         #trans_invoice=invoice_curr.invoice_no
     )
@@ -1929,8 +1933,9 @@ def saveCreditnote(request):
                   total=ele[6])
         creditnoteitem.save()
         print("creditnoteitem:", creditnoteitem)
-   
-        
+      
+      itt = ItemTransactions.objects.filter(item=items.id).last().trans_current_qty
+
       # Add invoice details in items transactions
       transaction = ItemTransactions.objects.create(
           company=cmp,
@@ -1938,6 +1943,7 @@ def saveCreditnote(request):
           trans_type='Creditnote',
           trans_date=creditnote_curr.creditnote_date,
           trans_qty=ele[1],
+          trans_current_qty = itt + int(ele[1]),
           trans_price=ele[2],
           #trans_invoice=invoice_curr.invoice_no
       )
@@ -2269,8 +2275,8 @@ def party_list(request):
   if party:
     fparty = party[0]
     ftrans = Transactions_party.objects.filter(party = fparty)
-    
-    context = {'party':party, 'usr':request.user, 'fparty':fparty, 'ftrans':ftrans}
+    balance = Transactions_party.objects.filter(party = fparty).last()
+    context = {'party':party, 'usr':request.user, 'fparty':fparty, 'ftrans':ftrans,'balance':balance}
   else:
         context = {'party':party, 'usr':request.user}
   return render(request,'parties_list.html',context)
@@ -2861,7 +2867,7 @@ def save_debit_note(request):
         debitnoteitem.save()
         print("debitnoteitem:", debitnoteitem)
    
-        
+      itt = ItemTransactions.objects.filter(item=items.id).last().trans_current_qty
       # Add invoice details in items transactions
       transaction = ItemTransactions.objects.create(
           company=cmp,
@@ -2869,6 +2875,7 @@ def save_debit_note(request):
           trans_type='Debitnote',
           trans_date=debitnote_curr.created_at,
           trans_qty=ele[1],
+          trans_current_qty = itt - int(ele[1]),
           trans_price=ele[2],
           #trans_invoice=invoice_curr.invoice_no
       )
@@ -3738,7 +3745,8 @@ def saveinvoice(request):
                   total=ele[6])
         invoiceitem.save()
         print("invoiceitem:", invoiceitem)
-        
+    
+    itt = ItemTransactions.objects.filter(item=items.id).last().trans_current_qty
     # Add invoice details in items transactions
     transaction = ItemTransactions.objects.create(
         company=cmp,
@@ -3746,6 +3754,7 @@ def saveinvoice(request):
         trans_type='Invoice',
         trans_date=invoice_curr.invoice_date,
         trans_qty=ele[1],
+        trans_current_qty = itt - int(ele[1]),
         trans_price=ele[2],
         #trans_invoice=invoice_curr.invoice_no
     )
@@ -4212,7 +4221,7 @@ def Purchasereport_graph(request):
     if request.user:
         cmp = Company.objects.get(user=request.user.id)
         usr = CustomUser.objects.get(username=request.user)
-        current_year = datetime.now().year       
+        current_year = date.today().year  
 
         monthly_purchase_data = defaultdict(float)  
         for month in range(1, 13):

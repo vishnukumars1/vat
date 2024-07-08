@@ -249,7 +249,7 @@ tbody td {
                                 </div>
                                 <p></p>
                                 <div class="d-flex justify-content-between" style="color: black;">
-                                    <p class="tb fw-bolder fs-2" style="color:white">SALE PRICE  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp;  ₹{{ itm.itm_sale_price }}</span></p>
+                                    <p class="tb fw-bolder fs-2" style="color:white">SALE PRICE  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp;  ₹ {{ itm.itm_sale_price }}</span></p>
                                     <p class="tb fw-bolder fs-2" style="color:white;">STOCK QUANTITY  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; {{ itm.itm_stock_in_hand }} {{itm.itm_unit}}</span></p>
                                 </div>
                                 <div class="d-flex justify-content-between">
@@ -257,7 +257,7 @@ tbody td {
                                     <p class="tb fw-bolder fs-2" style="color:white;">STOCK VALUE  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; ₹ <span id="stock_val"></span></span></p>
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <p class="tb fw-bolder fs-2" style="color:white;">BALANCE QUANTITY  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; </span></p>
+                                    <p class="tb fw-bolder fs-2" style="color:white;">BALANCE QUANTITY  <span class="ps-2 tg" style="color: white;"> - &nbsp;&nbsp; {{ bal_quantity }}</span></p>
                                 </div>
                             </div>
                             <hr style="height: .5%;">
@@ -342,6 +342,15 @@ tbody td {
                                                     &nbsp;<a class="btn btn-info" onclick="filterTable(5)">Apply</a>
                                                 </div>
                                             </th>
+                                            <th class="text-center fs-2">BALANCE QUANTITY
+                                                <a class="extra text-white" onclick="toggleDropdown(5)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
+                                                <div class="dropdown-content" id="dropdownContent5">
+                                                    <label for="filterInput5" style="color: black; text-align: left;">Equal To</label>
+                                                    <input type="text" id="filterInput5"  />
+                                                    <a class="btn btn-info" onclick="cleardropdown(5)">Clear</a> 
+                                                    &nbsp;<a class="btn btn-info" onclick="filterTable(5)">Apply</a>
+                                                </div>
+                                            </th>
                                             <th class="text-center fs-2">PRICE
                                                 <a class="extra text-white" onclick="toggleDropdown(6)">&nbsp;<i class="fa fa-filter" aria-hidden="true"></i></a>
                                                 <div class="dropdown-content" id="dropdownContent6">
@@ -360,6 +369,7 @@ tbody td {
                                                 <td class="text-center">{{ f.trans_type }}</td>
                                                 <td class="text-center">{{  f.trans_date | date:'d-m-Y'}}</td>
                                                 <td class="text-center">{{ f.trans_qty }}</td>
+                                                <td class="text-center">{{ f.trans_current_qty }}</td>
                                                 <td class="text-center">{{ f.trans_price }}</td>    
                                             </tr>
                                             {% endfor %}

@@ -119,6 +119,10 @@
     background-color: #68020F;
     color: #fff;
     }
+
+    .myDropDown{
+        flex: 1; 
+    }
 </style>
 <br><br><br>
 <div class="body-wrapper">
@@ -147,7 +151,7 @@
                                     <div class="col-md-7"></div>
                                     <div class="col-md-1">
                                         <a href="{% url 'allbill' %}" style="text-align: right; font-size: large; color: black; margin-left: 8vh;">
-                                            <i class="fa fa-times mt-2" aria-hidden="true"></i>'
+                                            <i class="fa fa-times mt-2" aria-hidden="true"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -156,14 +160,19 @@
                                             <div class="col-md-4">
                                                 <label class="col-form-label">PARTY</label>
                                                 <div class="d-flex">
+                                                    <div class="myDropDown">
                                                     <select name="customername" id="customer" class="form-control border-danger"  >
-                                                        <option value="" selected hidden>Select</option>
+                                                        <option value="" selected disabled>Select</option>
                                                         {% for c in party %}
                                                             {% if c.cid_id == cmp.cid %}
                                                                 <option value={{c.id}} > {{ c.party_name }}</option>
                                                             {% endif %}
                                                         {% endfor %}
-                                                    </select> &nbsp;&nbsp;&nbsp;
+                                                    </select> 
+                                                    </div>
+                    
+                                                    &nbsp;&nbsp;&nbsp;
+
                                                     <button id="modal_closing" type="button" class="btn " data-bs-toggle="modal" data-bs-target="#customercreation" data-bs-whatever="@mdo" style="border-color: #68020F !important;">
                                                         <span class="fa fa-plus"></span>
                                                     </button>
@@ -286,7 +295,7 @@
                                                         
                                                         <td style="width:5%">
                                                             
-                                                            <button type="button" id="1" class="btn button_border remove_row px-2 py-1 mx-1 fa fa-close" title="Remove Row"> Delete</button>
+                                                            <button type="button" id="1" class="btn button_border remove_row px-2 py-1 mx-1 fa fa-close" title="Remove Row" style="background-color:#68020F;color:white;"> Delete</button>
                                                         </td>
                                                     </tr>
                                                 </tbody>

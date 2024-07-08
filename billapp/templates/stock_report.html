@@ -36,9 +36,9 @@
         background: #68020F;
         color: white;
     }
-    {% comment %} .all_stock_reports{
+     .all_stock_reports{
         background: white;
-    } {% endcomment %}
+    } 
 
     table tr {
         cursor: pointer;
@@ -394,16 +394,16 @@
                                 </div>
                                 {% if balance %}
                                 <div class="balance_stock_section" style="margin-left: 20px;">
-                                    <h5>Stock Remaining: <span class="fs-2 text-success">{{balance}}</span></h5>
+                                    <h5>Stock Remaining: <span class="fs-4 text-success">{{balance}}</span></h5>
                                 </div>
                                 {% elif balance == 0 %}
                                 <div class="balance_stock_section" style="margin-left: 20px;">
-                                    <h5>Stock Remaining: <span class="fs-2 text-danger">0</span></h5>
+                                    <h5>Stock Remaining: <span class="fs-4 text-danger">0</span></h5>
                                 </div>
                                 {% endif %}
                                 {% if count %}
                                 <div class="stock_count_section" style="margin-left: 20px;">
-                                    <h5>Stock Count: <span class="fs-2" style="color:#68020F;">{{count}}</span></h5>
+                                    <h5>Stock Count: <span class="fs-4" style="color:#68020F;">{{count}}</span></h5>
                                 </div>
                                 {% endif %}
                             </div>
